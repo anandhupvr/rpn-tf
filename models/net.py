@@ -99,7 +99,7 @@ class network():
             initializer = tf.random_normal_initializer(mean=0.0, stddev=0.01)
             initializer_bbox = tf.random_normal_initializer(mean=0.0, stddev=0.001)
 
-            vgg_16 = vgg.ConvNetVgg16('/home/christie/junk/frcnn-tf/vgg16.npy')
+            vgg_16 = vgg.ConvNetVgg16('/home/user1/Music/rpn-tf/vgg16.npy')
             cnn = vgg_16.inference(self.x)
             features = vgg_16.get_features()
             rpn_cls_prob, rpn_bbox_pred, rpn_cls_score = self.build_rpn(features, initializer)
@@ -141,4 +141,7 @@ class network():
         rpn_cls_prob = self._reshape(rpn_cls_score, num_anchors * 2, "rpn_cls_prob")
 
         return rpn_cls_prob, rpn_bbox_pred, rpn_cls_score
+
+    def getPlaceholders(self):
+        return self.x, self._gt_boxes, self.im_dims
   

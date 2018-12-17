@@ -11,7 +11,7 @@ data_loader = load(dataset_path)
 net = network()
 
 
-rpn_cls_score_reshape, rpn_labels, rpn_bbox_pred, rpn_bbox_targets, rpn_bbox_inside_weights, rpn_bbox_outside_weights_weights = net.build_network()
+rpn_cls_score_reshape, rpn_labels, rpn_bbox_pred, rpn_bbox_targets, rpn_bbox_inside_weights, rpn_bbox_outside_weights = net.build_network()
 
 x, gt_boxes, im_dims = net.getPlaceholders()
 
