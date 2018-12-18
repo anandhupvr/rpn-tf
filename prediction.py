@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 
 
-img_path = '/home/user1/Downloads/meat_balls.jpg'
+img_path = '/home/christie/junk/rpn-tf/dog.jpg'
 
 
 
