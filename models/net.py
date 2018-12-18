@@ -58,25 +58,25 @@ class network():
         return rpn_labels, rpn_bbox_targets, rpn_bbox_inside_weights, rpn_bbox_outside_weights
 
 
-    def proposal_layer(self, rpn_bbox_cls_prob, rpn_bbox_pred, im_dims, feat_strides):
-        blob = tf.py_func(proposal_layer_py,
-                        [rpn_bbox_cls_prob, rpn_bbox_pred, im_dims, feat_strides],
-                        [tf.float32])
-        blob = tf.reshape(blob, [-1, 5])
+    # def proposal_layer(self, rpn_bbox_cls_prob, rpn_bbox_pred, im_dims, feat_strides):
+    #     blob = tf.py_func(proposal_layer_py,
+    #                     [rpn_bbox_cls_prob, rpn_bbox_pred, im_dims, feat_strides],
+    #                     [tf.float32])
+    #     blob = tf.reshape(blob, [-1, 5])
 
-        return blob
+    #     return blob
 
-    def proposal_target_layer(self, rpn_rois, _gt_boxes, num_classes):
-        rois, labels, bbox_targets, bbox_inside_weights, bbox_outside_weights = tf.py_func( proposal_target_layer_py,
-                                                                                            [ rpn_rois, _gt_boxes, num_classes],
-                                                                                            [tf.float32, tf.float32, tf.float32, tf.float32, tf.float32])
-        rois = tf.reshape( rois, [-1, 5], name = 'rois')
-        labels = tf.convert_to_tensor( tf.cast(labels, tf.int32), name = 'labels')
-        bbox_targets = tf.convert_to_tensor( bbox_targets, name = 'bbox_targets')
-        bbox_inside_weights = tf.convert_to_tensor( bbox_inside_weights, name = 'bbox_inside_weights')
-        bbox_outside_weights = tf.convert_to_tensor( bbox_outside_weights, name = 'bbox_outside_weights')
+    # def proposal_target_layer(self, rpn_rois, _gt_boxes, num_classes):
+    #     rois, labels, bbox_targets, bbox_inside_weights, bbox_outside_weights = tf.py_func( proposal_target_layer_py,
+    #                                                                                         [ rpn_rois, _gt_boxes, num_classes],
+    #                                                                                         [tf.float32, tf.float32, tf.float32, tf.float32, tf.float32])
+    #     rois = tf.reshape( rois, [-1, 5], name = 'rois')
+    #     labels = tf.convert_to_tensor( tf.cast(labels, tf.int32), name = 'labels')
+    #     bbox_targets = tf.convert_to_tensor( bbox_targets, name = 'bbox_targets')
+    #     bbox_inside_weights = tf.convert_to_tensor( bbox_inside_weights, name = 'bbox_inside_weights')
+    #     bbox_outside_weights = tf.convert_to_tensor( bbox_outside_weights, name = 'bbox_outside_weights')
         
-        return rois, labels, bbox_targets, bbox_inside_weights, bbox_outside_weights
+    #     return rois, labels, bbox_targets, bbox_inside_weights, bbox_outside_weights
 
     # def proposal_target_layer(self, rpn_rois, rpn_cls_score, _gt_boxes, num_classes):
     #     rois, labels, bbox_targets, bbox_inside_weights, bbox_outside_weights = tf.py_func( proposal_target_layer_t,
@@ -103,6 +103,7 @@ class network():
             cnn = vgg_16.inference(self.x)
             features = vgg_16.get_features()
             rpn_cls_prob, rpn_bbox_pred, rpn_cls_score = self.build_rpn(features, initializer)
+            
             rpn_labels, rpn_bbox_targets, rpn_bbox_inside_weights, rpn_bbox_outside_weights = \
                 self.anchor_target_layer( rpn_cls_score, self._gt_boxes, self.im_dims, self.feat_stride)
 
