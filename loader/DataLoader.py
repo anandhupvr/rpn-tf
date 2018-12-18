@@ -25,7 +25,7 @@ class load:
             return [float(i) for i in st]
 
         image_files = open("train.txt", "r").readlines()[self.ptr: self.ptr + 1]
-        if len(image_files)-1 == self.ptr:
+        if len(open("train.txt", "r").readlines())-1 == self.ptr:
             self.ptr = 0
         # img = np.expand_dims(np.array(Image.open(image_files[0].strip()),dtype=np.uint8), axis=0).astype('float32')
         img = np.expand_dims(cv2.imread(image_files[0].strip()), axis=0).astype('float32')
