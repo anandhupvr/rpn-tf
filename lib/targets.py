@@ -3,8 +3,9 @@ import random
 from loader import get_anchor
 from loader.utils import bbox_overlaps
 from lib.bbox_transform import bbox_transform
+from numba import jit
 
-
+@jit
 def anchor_target_layer_python(rpn_cls_score, _gt_boxes, im_dims, feat_stride):
 
 
@@ -101,6 +102,7 @@ def anchor_target_layer_python(rpn_cls_score, _gt_boxes, im_dims, feat_stride):
     rpn_bbox_outside_weights = bbox_outside_weights.reshape((1, height, width, num_anchors * 4))
     return rpn_labels,rpn_bbox_targets,rpn_bbox_inside_weights,rpn_bbox_outside_weights
 
+@jit
 def unmap( data, count, inds, fill = 0):
     """
     Unmap a subset of item (data) back to the original set of items (of size count)
@@ -116,6 +118,7 @@ def unmap( data, count, inds, fill = 0):
 
     return ret
 
+@jit
 def compute_target(ex_rois, gt_rois):
     """Compute bounding-box regression targets for an image."""
     assert ex_rois.shape[0] == gt_rois.shape[0]
