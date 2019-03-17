@@ -1,2 +1,2 @@
-# frcnn-tf
-faster rcnn tensorflow implementation
+# rpn-tf
+Region Proposal Network
