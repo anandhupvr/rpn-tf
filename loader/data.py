@@ -373,7 +373,7 @@ class load:
         return img_data_aug, img
 
     def get_anchor_gt(self, all_img_data, C, img_length_calc_function, mode):
-        batch_size = 4
+        batch_size = 5
         while True:
             i = 0
             for i in range(0, len(all_img_data), batch_size):
