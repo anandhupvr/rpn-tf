@@ -49,7 +49,6 @@ with tf.Session() as sess:
     for i in range(num_epo):
         los = 0
         for _ in range(108):
-            import pdb; pdb.set_trace()
             X, Y, image_data, debug_img, debug_num_pos = next(data_gen)
             summary = sess.run([merged, train_step], feed_dict={x:X, cls_plc:Y[0], box_plc:Y[1]})
             ls_val = sess.run(rpn_loss, feed_dict={x:X, cls_plc:Y[0], box_plc:Y[1]})
