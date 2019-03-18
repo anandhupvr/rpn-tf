@@ -54,6 +54,7 @@ with tf.Session() as sess:
             ls_val = sess.run(rpn_loss, feed_dict={x:X, cls_plc:Y[0], box_plc:Y[1]})
             loss_ = ls_val + los
             los = loss_
+            print (loss_)
         train_writer.add_summary(summary[0], i)
         print ("epoch : %s  ***** avg losss : %s ***** "%(i, loss_/108))
 
