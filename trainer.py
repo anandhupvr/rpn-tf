@@ -37,7 +37,8 @@ los_b = lgr(box_plc, rpn_out[1])
 rpn_loss = los_c + los_b
 
 tf.summary.scalar("loss", rpn_loss)
-train_step = tf.train.AdamOptimizer(1e-4).minimize(rpn_loss)
+# train_step = tf.train.AdamOptimizer(1e-4).minimize(rpn_loss)
+train_step = tf.train.GradientDescentOptimizer(1e-4).minimize(rpn_loss)
 
 saver = tf.train.Saver()
 
