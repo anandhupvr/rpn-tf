@@ -60,6 +60,7 @@ with tf.Session() as sess:
             los = loss_
             print (ls_val)
         train_writer.add_summary(summary[0], i)
+        import pdb; pdb.set_trace()
         print ("epoch : %s  ***** avg losss : %s ***** "%(i, loss_/108))
 
         if i%100 == 0:
