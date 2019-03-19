@@ -375,7 +375,7 @@ class load:
     def get_anchor_gt(self, all_img_data, C, img_length_calc_function, mode):
         batch_size = 4
         while True:
-            i = 0
+            j = 0
             for i in range(0, len(all_img_data), batch_size):
                 imgs = all_img_data[i:i+batch_size]
                 x_img_ = []
@@ -430,6 +430,7 @@ class load:
                     img_data_aug_.append(img_data_aug)
                     debug_img_.append(debug_img_)
                     num_pos_.append(num_pos)
-                i += 1
+                import pdb; pdb.set_trace()
+                j += 1
 
                 yield np.copy(x_img_), [np.copy(y_rpn_cls_), np.copy(y_rpn_regr_)], img_data_aug_, debug_img_, num_pos_
