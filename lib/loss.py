@@ -75,6 +75,22 @@ def rpn_loss_cls_org(num_anchors):
 	return rpn_loss_cls_fixed_num
 
 
+def smoothL1(y_true, y_pred):
+	nd=K.tf.where(K.tf.not_equal(y_true,0))
+	y_true=K.tf.gather_nd(y_true,nd)
+	y_pred=K.tf.gather_nd(y_pred,nd)
+	x = K.tf.losses.huber_loss(y_true,y_pred)
+#     x   = K.switch(x < HUBER_DELTA, 0.5 * x ** 2, HUBER_DELTA * (x - 0.5 * HUBER_DELTA))
+	return x
+
+def loss_cls(y_true, y_pred):
+	condition = K.not_equal(y_true, -1)
+	indices = K.tf.where(condition)
+
+	target = K.tf.gather_nd(y_true, indices)
+	output = K.tf.gather_nd(y_pred, indices)
+	loss = K.binary_crossentropy(target, output)
+	return K.mean(loss)
 
 
 
@@ -92,3 +108,30 @@ def class_loss_regr(num_classes):
 
 def class_loss_cls(y_true, y_pred):
 	return lambda_cls_class * K.mean(categorical_crossentropy(y_true[0, :, :], y_pred[0, :, :]))
+
+
+# def _compute_loss(prediction_tensor, target_tensor, weights):
+# """Compute loss function.
+
+# Args:
+#   prediction_tensor: A float tensor of shape [batch_size, num_anchors,
+# 	code_size] representing the (encoded) predicted locations of objects.
+#   target_tensor: A float tensor of shape [batch_size, num_anchors,
+# 	code_size] representing the regression targets
+#   weights: a float tensor of shape [batch_size, num_anchors]
+
+# Returns:
+#   loss: a float tensor of shape [batch_size, num_anchors] tensor
+# 	representing the value of the loss function.
+# """
+# 	return tf.reduce_sum(treturn tf.reduce_sum(tf.losses.huber_loss(
+# 		target_tensor,
+# 		prediction_tensor,
+# 		delta=1.0,
+# 		weights=tf.expand_dims(weights, axis=2),
+# 		loss_collection=None,
+# 		reduction=tf.losses.Reduction.NONE
+# 	), axis=2)
+def regr_loss(y_true, y_pred):
+	x = tf.abs(y_true - y_pred)
+	loc_loss = ((x < 1) * 0.5 * x**2) + ((x >= 1) * (x-0.5))

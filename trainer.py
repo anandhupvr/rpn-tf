@@ -30,15 +30,18 @@ net = network()
 rpn_out = net.build_network()
 x, cls_plc, box_plc = net.get_placeholder()
 
+# los_b = losses.smoothL1(box_plc, rpn_out[1])
+# los_c = losses.loss_cls(cls_plc, rpn_out[0])
 lsr = losses.rpn_loss_cls_org(9)
 lgr = losses.rpn_loss_regr_org(9)
 los_c = lsr(cls_plc, rpn_out[0])
 los_b = lgr(box_plc, rpn_out[1])
+
 rpn_loss = los_c + los_b
 
 tf.summary.scalar("loss", rpn_loss)
-# train_step = tf.train.AdamOptimizer(1e-4).minimize(rpn_loss)
-train_step = tf.train.GradientDescentOptimizer(1e-4).minimize(rpn_loss)
+train_step = tf.train.AdamOptimizer(1e-4).minimize(rpn_loss)
+# train_step = tf.train.GradientDescentOptimizer(1e-2).minimize(rpn_loss)
 
 saver = tf.train.Saver()
 
@@ -49,13 +52,14 @@ with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     for i in range(num_epo):
         los = 0
+        import pdb; pdb.set_trace()
         for _ in range(108):
             X, Y, image_data, debug_img, debug_num_pos = next(data_gen)
             summary = sess.run([merged, train_step], feed_dict={x:X, cls_plc:Y[0], box_plc:Y[1]})
             ls_val = sess.run(rpn_loss, feed_dict={x:X, cls_plc:Y[0], box_plc:Y[1]})
             loss_ = ls_val + los
             los = loss_
-            print (loss_)
+            print (ls_val)
         train_writer.add_summary(summary[0], i)
         print ("epoch : %s  ***** avg losss : %s ***** "%(i, loss_/108))
 
