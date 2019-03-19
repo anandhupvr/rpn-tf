@@ -430,7 +430,6 @@ class load:
                     img_data_aug_.append(img_data_aug)
                     debug_img_.append(debug_img_)
                     num_pos_.append(num_pos)
-                import pdb; pdb.set_trace()
                 j += 1
 
                 yield np.copy(x_img_), [np.copy(y_rpn_cls_), np.copy(y_rpn_regr_)], img_data_aug_, debug_img_, num_pos_
