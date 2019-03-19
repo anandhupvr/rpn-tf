@@ -52,7 +52,6 @@ with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     for i in range(num_epo):
         los = 0
-        import pdb; pdb.set_trace()
         for _ in range(108):
             X, Y, image_data, debug_img, debug_num_pos = next(data_gen)
             summary = sess.run([merged, train_step], feed_dict={x:X, cls_plc:Y[0], box_plc:Y[1]})
