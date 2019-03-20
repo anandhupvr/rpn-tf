@@ -57,7 +57,7 @@ class network():
         # rpn_cls_score_reshape = self._softmax(rpn_cls_score_reshape, 'rpn_cls_softmax')
         # rpn_cls_prob = self._reshape(rpn_cls_score, num_anchors , "rpn_cls_prob")
 
-        return rpn_cls, rpn_bbox
+        return rpn_cls_score, rpn_bbox_pred
 
     def get_placeholder(self):
         return self.x, self.cls_plc, self.box_plc
