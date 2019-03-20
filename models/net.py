@@ -12,9 +12,6 @@ class network():
         self.cls_plc = tf.placeholder(tf.float32, shape=[self._batch_size, None, None, 18], name="rpn_cls")
         self.box_plc = tf.placeholder(tf.float32, shape=[self._batch_size, None, None, 72], name="rpn_box")
 
-
-
-
     def build_network(self):
         initializer = tf.random_normal_initializer(mean=0.0, stddev=0.01)
         initializer_bbox = tf.random_normal_initializer(mean=0.0, stddev=0.001)
