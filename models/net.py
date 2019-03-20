@@ -44,8 +44,8 @@ class network():
                                     activation='linear',
                                     kernel_initializer = initializer,
                                     name='rpn_out_regre')
-        # rpn_cls = tf.reshape(rpn_cls_score, [4, 14, 14, 9], name='rpn_cls_pred')
-        # rpn_bbox = tf.reshape(rpn_bbox_pred, [4, 14, 14, 36], name='rpn_bbox_pred')
+        rpn_cls = tf.reshape(rpn_cls_score, [-1, 14, 14, 9], name='rpn_cls_pred')
+        rpn_bbox = tf.reshape(rpn_bbox_pred, [-1, 14, 14, 36], name='rpn_bbox_pred')
 
         # num = 2
         # rpn_cls_score_reshape = self._reshape(rpn_cls_score, num, 'rpn_cls_scores_reshape')
