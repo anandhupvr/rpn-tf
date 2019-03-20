@@ -1,9 +1,11 @@
 import tensorflow as tf
+from PIL import Image
+import sys
+# from loader.DataLoader import load
+import lib.utils as utils
 import cv2
 import numpy as np
-
-
-img_path = '/home/christie/junk/rpn-tf/dog.jpg'
+from config.parameters import Config
 
 
 
@@ -11,23 +13,32 @@ tf.reset_default_graph()
 
 
 
-model_path = '/home/christie/junk/weights/'
+C = Config()
+
+bbox_threshold = 0.2
+
+# load = load(dataset_path)
+
+
+img = Image.open(sys.argv[1])
 
 new_graph = tf.Graph()
-with tf.Session(graph=new_graph) as sess:
 
+
+with tf.Session(graph=new_graph) as sess:
     tf.global_variables_initializer().run()
-    saver = tf.train.import_meta_graph(model_path + "model_0.ckpt.meta")
-    checkpoint = tf.train.latest_checkpoint(model_path)
+    saver = tf.train.import_meta_graph('weight/model_400.ckpt.meta')
+    checkpoint = tf.train.latest_checkpoint('weight')
+
     saver.restore(sess, checkpoint)
-    img = np.expand_dims(cv2.imread(img_path), axis=0).astype('float32')
-    print ("model restored!")
-    # img_info = (img.shape[1], img.shape[2])
-    inp = tf.get_default_graph().get_tensor_by_name("Placeholder:0")
-    inp_dim = tf.get_default_graph().get_tensor_by_name("Placeholder_1:0")
-    out = tf.get_default_graph().get_tensor_by_name("f-rcnn/rpn_out_regre/bias/Adam_511:0")
-    p = sess.run(out, feed_dict={inp:img})
-    print (p)
-    # p = sess.run(out,feed_dict={inp:img})
-    # p = np.reshape(p,[1, config["GRID_H"], config["GRID_W"], config["BOX"], 4 + 1 + config["CLASS"]])
-    # print (set(p[:,:,:,:,4].flatten()))
+    print ("model restored")
+    img = np.expand_dims(img.resize([224, 224]), axis=0)
+
+    image_tensor = tf.get_default_graph().get_tensor_by_name('input_image:0')
+    rpn_reg_out = tf.get_default_graph().get_tensor_by_name('rpn_bbox_pred:0')
+    rpn_cls_out = tf.get_default_graph().get_tensor_by_name('rpn_cls_pred:0')
+
+    base_layer = tf.get_default_graph().get_tensor_by_name('conv5_3/Relu:0')
+
+
+    P_rpn = sess.run([rpn_cls_out, rpn_reg_out, base_layer], feed_dict={image_tensor:img})
