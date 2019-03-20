@@ -15,7 +15,7 @@ def get_img_output_length(width, height):
 
 
 
-num_epo = 500
+num_epo = 1000
 dataset_path = sys.argv[1]
 load = load(dataset_path)
 
