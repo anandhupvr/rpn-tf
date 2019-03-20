@@ -27,7 +27,7 @@ new_graph = tf.Graph()
 
 with tf.Session(graph=new_graph) as sess:
     tf.global_variables_initializer().run()
-    saver = tf.train.import_meta_graph('weight/model_300.ckpt.meta')
+    saver = tf.train.import_meta_graph('weight/model_400.ckpt.meta')
     checkpoint = tf.train.latest_checkpoint('weight')
 
     saver.restore(sess, checkpoint)
