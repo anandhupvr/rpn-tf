@@ -35,8 +35,8 @@ with tf.Session(graph=new_graph) as sess:
     img = np.expand_dims(img.resize([224, 224]), axis=0)
 
     image_tensor = tf.get_default_graph().get_tensor_by_name('input_image:0')
-    rpn_reg_out = tf.get_default_graph().get_tensor_by_name('rpn_out_regre:0')
-    rpn_cls_out = tf.get_default_graph().get_tensor_by_name('rpn_out_class:0')
+    rpn_reg_out = tf.get_default_graph().get_tensor_by_name('rpn_bbox_pred:0')
+    rpn_cls_out = tf.get_default_graph().get_tensor_by_name('rpn_cls_pred:0')
 
     base_layer = tf.get_default_graph().get_tensor_by_name('conv5_3/Relu:0')
 
