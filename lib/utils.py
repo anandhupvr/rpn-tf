@@ -303,11 +303,10 @@ def rpn_to_roi(rpn_layer, regr_layer, C, dim_ordering, use_regr=True, max_boxes=
 
 
 def bbox_plot(img, box):
-	import pdb; pdb.set_trace()
 	img = img.resize([224, 224])
 	im = (np.array(img, dtype=np.uint8))
 	fig, ax = plt.subplots(1)
-	box = box*16
+	box = box*14
 	# import pdb; pdb.set_trace()
 	ax.imshow(im)
 	for i in range(len(box)):
