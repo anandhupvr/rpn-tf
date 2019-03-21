@@ -313,4 +313,4 @@ def bbox_plot(img, box):
         s = patches.Rectangle((box[i][k], box[i][k+1]), box[i][k+2], box[i][k+3], linewidth=1, edgecolor='g', facecolor="none")
         # s = patches.Rectangle((box[i][0], box[i][1]), box[i][2], box[i][3], linewidth=1, edgecolor='g', facecolor="none")
         ax.add_patch(s)
-    plt.savefig("prediction.png", im)
+    im.savefig("prediction.png", im)
