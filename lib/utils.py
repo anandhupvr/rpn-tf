@@ -3,6 +3,9 @@ import pdb
 import math
 import copy
 from loader.data import load
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+from PIL import Image
 
 data = load('dataset/')
 
