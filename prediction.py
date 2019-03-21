@@ -21,7 +21,7 @@ bbox_threshold = 0.2
 
 
 img_ = Image.open(sys.argv[1])
-im_w, im_h = img_.size()
+# im_w, im_h = img_.size()
 
 new_graph = tf.Graph()
 
