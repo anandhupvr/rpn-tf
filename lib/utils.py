@@ -304,14 +304,14 @@ def rpn_to_roi(rpn_layer, regr_layer, C, dim_ordering, use_regr=True, max_boxes=
 
 def bbox_plot(img, box):
 	import pdb; pdb.set_trace()
-    img = img.resize([224, 224])
-    im = (np.array(img, dtype=np.uint8))
-    fig, ax = plt.subplots(1)
-    # import pdb; pdb.set_trace()
-    ax.imshow(im)
-    for i in range(len(box)):
-        k = 0
-        s = patches.Rectangle((box[i][k], box[i][k+1]), box[i][k+2], box[i][k+3], linewidth=1, edgecolor='g', facecolor="none")
-        # s = patches.Rectangle((box[i][0], box[i][1]), box[i][2], box[i][3], linewidth=1, edgecolor='g', facecolor="none")
-        ax.add_patch(s)
-    plt.savefig("prediction.png", im)
+	img = img.resize([224, 224])
+	im = (np.array(img, dtype=np.uint8))
+	fig, ax = plt.subplots(1)
+	# import pdb; pdb.set_trace()
+	ax.imshow(im)
+	for i in range(len(box)):
+		k = 0
+		s = patches.Rectangle((box[i][k], box[i][k+1]), box[i][k+2], box[i][k+3], linewidth=1, edgecolor='g', facecolor="none")
+		# s = patches.Rectangle((box[i][0], box[i][1]), box[i][2], box[i][3], linewidth=1, edgecolor='g', facecolor="none")
+		ax.add_patch(s)
+	plt.savefig("prediction.png", im)
