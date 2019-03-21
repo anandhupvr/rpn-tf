@@ -1,3 +1,5 @@
 dataset/*
 *.npy
 logs/*
+*.pyc
+__pycache__

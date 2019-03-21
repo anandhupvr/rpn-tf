@@ -307,6 +307,7 @@ def bbox_plot(img, box):
 	img = img.resize([224, 224])
 	im = (np.array(img, dtype=np.uint8))
 	fig, ax = plt.subplots(1)
+	box = box*16
 	# import pdb; pdb.set_trace()
 	ax.imshow(im)
 	for i in range(len(box)):
