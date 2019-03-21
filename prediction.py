@@ -20,7 +20,8 @@ bbox_threshold = 0.2
 # load = load(dataset_path)
 
 
-img = Image.open(sys.argv[1])
+img_ = Image.open(sys.argv[1])
+im_w, im_h = img_.size()
 
 new_graph = tf.Graph()
 
@@ -32,7 +33,7 @@ with tf.Session(graph=new_graph) as sess:
 
     saver.restore(sess, checkpoint)
     print ("model restored")
-    img = np.expand_dims(img.resize([224, 224]), axis=0)
+    img = np.expand_dims(img_.resize([224, 224]), axis=0)
 
     image_tensor = tf.get_default_graph().get_tensor_by_name('input_image:0')
     rpn_reg_out = tf.get_default_graph().get_tensor_by_name('rpn_bbox_pred:0')
@@ -42,3 +43,7 @@ with tf.Session(graph=new_graph) as sess:
 
     import pdb; pdb.set_trace()
     P_rpn = sess.run([rpn_cls_out, rpn_reg_out, base_layer], feed_dict={image_tensor:img})
+    R = utils.rpn_to_roi(P_rpn[0], P_rpn[1], C, 'tf', overlap_thresh=0.7)
+
+
+utils.bbox_plot(img_, R)
