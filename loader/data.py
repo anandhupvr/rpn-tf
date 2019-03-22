@@ -387,7 +387,6 @@ class load:
 
                 for j, img_data in zip(range(len(imgs)), imgs):
                     # read in image, and optionally add augmentation
-                    import pdb; pdb.set_trace()
                     if mode == 'train':
                         img_data_aug, x_img = self.augment(img_data, C, augment=True)
                     else:

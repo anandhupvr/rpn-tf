@@ -3,3 +3,5 @@ dataset/*
 logs/*
 *.pyc
 __pycache__
+train.txt
+test.txt
