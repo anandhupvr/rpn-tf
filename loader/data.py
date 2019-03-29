@@ -8,6 +8,7 @@ import copy
 import random
 import loader.proposal_targets as rpn_target
 import lib.rpn_labels as rpn_utils
+import cv2
 
 class load:
     def __init__(self, dataset_path):
@@ -92,8 +93,10 @@ class load:
                     gta = [x1, y2, x2-x1, y2-y1]
                     gta = np.expand_dims(np.array(gta), axis=0)
                     gt_box.append(gta)
-                    x_img_ = Image.open(img['filepath'].strip())
-                    x_img_ = np.array(x_img_.resize((224, 224), Image.ANTIALIAS))
+                    x_img_ = cv2.imread(img['filepath'].strip())
+                    x_img_ = cv2.resize(x_img_, (224, 224))
+                    # x_img_ = Image.open(img['filepath'].strip())
+                    # x_img_ = np.array(x_img_.resize((224, 224), Image.ANTIALIAS))
                     x_img.append(x_img_)
                 anchors, true_index, false_index = rpn_utils.create_Labels_For_Loss(np.array(gt_box))
                 x_img = np.array(x_img)
