@@ -31,7 +31,6 @@ net = network()
 
 rpn_out,x = net.build_network()
 # x, cls_plc, box_plc = net.get_placeholder()
-import pdb; pdb.set_trace()
 total_loss, cls_loss, bbox_loss, true_obj_loss, false_obj_loss, g_bbox, true_index, false_index = losses.rpn_loss(rpn_out[0], rpn_out[1])
 
 
