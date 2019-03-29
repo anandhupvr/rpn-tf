@@ -96,9 +96,10 @@ class load:
                     x_img_ = np.array(x_img_.resize((224, 224), Image.ANTIALIAS))
                     x_img.append(x_img_)
                 anchors, true_index, false_index = rpn_utils.create_Labels_For_Loss(np.array(gt_box))
+                x_img = np.array(x_img)
                 j += 1
 
-                yield np.array(x_img), anchors, true_index, false_index
+                yield x_img, anchors, true_index, false_index
 
 
 
