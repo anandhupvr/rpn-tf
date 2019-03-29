@@ -6,11 +6,11 @@ from models import vgg
 
 class network():
     def __init__(self, batch_size=1):
-        self._batch_size = None
+        self._batch_size = 4
 
-        self.x = tf.placeholder(dtype=tf.float32, shape=[self._batch_size, None, None, 3], name="input_image")
-        self.cls_plc = tf.placeholder(tf.float32, shape=[self._batch_size, None, None, 18], name="rpn_cls")
-        self.box_plc = tf.placeholder(tf.float32, shape=[self._batch_size, None, None, 72], name="rpn_box")
+        self.x = tf.placeholder(dtype=tf.float32, shape=[self._batch_size, 224, 224, 3], name="input_image")
+        # self.cls_plc = tf.placeholder(tf.float32, shape=[self._batch_size, None, None, 18], name="rpn_cls")
+        # self.box_plc = tf.placeholder(tf.float32, shape=[self._batch_size, None, None, 72], name="rpn_box")
 
     def build_network(self):
         initializer = tf.random_normal_initializer(mean=0.0, stddev=0.01)
@@ -20,8 +20,8 @@ class network():
         features = vgg_16.get_features()
 
 
-        rpn_cls_score, rpn_bbox_pred = self.build_rpn(features, initializer)
-        return [rpn_cls_score, rpn_bbox_pred, features]
+        rpn_cls_score, rpn_bbox_pred = self.build_model(features, initializer)
+        return [rpn_cls_score, rpn_bbox_pred, features], self.x
 
 
     def build_rpn(self, net, initializer):
@@ -33,7 +33,7 @@ class network():
                                     kernel_initializer = initializer,
                                     name='npn_conv/3x3')
         rpn_cls_score = tf.layers.conv2d(rpn1,
-                                    filters=num_anchors,
+                                    filters=num_anchors * 2,
                                     kernel_size=(1, 1),
                                     activation='sigmoid',
                                     kernel_initializer = initializer,
@@ -44,7 +44,7 @@ class network():
                                     activation='linear',
                                     kernel_initializer = initializer,
                                     name='rpn_out_regre')
-        rpn_cls = tf.reshape(rpn_cls_score, [-1, 14, 14, 9], name='rpn_cls_pred')
+        rpn_cls = tf.reshape(rpn_cls_score, [-1, 14, 14, 18], name='rpn_cls_pred')
         rpn_bbox = tf.reshape(rpn_bbox_pred, [-1, 14, 14, 36], name='rpn_bbox_pred')
 
         # num = 2
@@ -58,3 +58,34 @@ class network():
 
     def get_placeholder(self):
         return self.x, self.cls_plc, self.box_plc
+
+
+    def build_model(self, features, initializer):
+
+        num_anchors = 9
+        rpn1 = tf.layers.conv2d(features,
+                                    filters=512,
+                                    kernel_size=(3, 3),
+                                    padding='same',
+                                    kernel_initializer = initializer,
+                                    name='npn_conv/3x3')
+        rpn_cls_score = tf.layers.conv2d(rpn1,
+                                    filters=num_anchors * 2,
+                                    kernel_size=(1, 1),
+                                    activation='sigmoid',
+                                    kernel_initializer = initializer,
+                                    name="rpn_out_class")
+        rpn_bbox_pred = tf.layers.conv2d(rpn1,
+                                    filters=num_anchors * 4,
+                                    kernel_size=(1, 1),
+                                    activation='linear',
+                                    kernel_initializer = initializer,
+                                    name='rpn_out_regre')
+        rpn_shape = rpn_cls_score.get_shape().as_list()
+        rpn_shape = tf.shape(rpn_cls_score)
+        rpn_cls = tf.reshape(rpn_cls_score, [rpn_shape[0], rpn_shape[1], rpn_shape[2], num_anchors, 2])
+        rpn_cls = tf.nn.softmax(rpn_cls, dim=-1)
+        rpn_cls = tf.reshape(rpn_cls, [rpn_shape[0], rpn_shape[1]*rpn_shape[2], num_anchors, 2], name="rpn_cls_reshaped")
+        rpn_box = tf.reshape(rpn_bbox_pred, [rpn_shape[0], rpn_shape[1]*rpn_shape[2], num_anchors, 4], name="rpn_bbox_reshaped")
+
+        return rpn_cls, rpn_box

@@ -42,7 +42,7 @@ with tf.Session(graph=new_graph) as sess:
     base_layer = tf.get_default_graph().get_tensor_by_name('conv5_3/Relu:0')
 
     P_rpn = sess.run([rpn_cls_out, rpn_reg_out, base_layer], feed_dict={image_tensor:img})
-    R = utils.rpn_to_roi(P_rpn[0], P_rpn[1], C, 'tf', overlap_thresh=0.7)
+    # R = utils.rpn_to_roi(P_rpn[0], P_rpn[1], C, 'tf', overlap_thresh=0.7)
 import pdb; pdb.set_trace()
 
 utils.bbox_plot(img_, R)

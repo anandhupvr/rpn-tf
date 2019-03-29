@@ -63,3 +63,4 @@ class Config:
         self.class_mapping = None
 
         self.model_path = None
+        self.feature_shape = (64, 19)

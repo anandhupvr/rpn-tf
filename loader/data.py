@@ -3,11 +3,11 @@ import loader.utils as utils
 import os
 from PIL import Image
 import numpy as np
-import cv2
 import sys
 import copy
 import random
-
+import loader.proposal_targets as rpn_target
+import lib.rpn_labels as rpn_utils
 
 class load:
     def __init__(self, dataset_path):
@@ -52,7 +52,6 @@ class load:
                 sys.stdout.write('\r'+'idx=' + str(i))
                 i += 1
                 label_file = open(line.strip().replace('images','labelsbbox').replace('jpg', 'txt')).readlines()
-
                 clas_name = int(label_file[0].strip())
                 (x1, y1, x2, y2) = label_file[1].strip().split(' ')
                 filename = line
@@ -65,6 +64,44 @@ class load:
             for key in all_imgs:
                 all_data.append(all_imgs[key])
         return all_data
+
+    def get_rpn(self, all_img_data, C, get_img_output_length):
+
+        batch_size = 4
+        image_size = (224, 224)
+        # width, height = get_img_output_length(224, 224)
+        while True:
+            j = 0
+            for i in range(0, len(all_img_data), batch_size):
+                imgs = all_img_data[i:i+batch_size]
+                # rpn_labels = []
+                # rpn_bbox_targets = []
+                # rpn_bbox_inside_weights = []
+                # rpn_bbox_outside_weights = []
+                # bbox_targets = []
+                # bbox_inside_weights = []
+                # bbox_outside_weights = []
+                x_img = []
+                gt_box = []
+
+                for img in imgs:
+                    x1 = img['bboxes'][0]['x1']
+                    x2 = img['bboxes'][0]['x2']
+                    y1 = img['bboxes'][0]['y1']
+                    y2 = img['bboxes'][0]['y2']
+                    gta = [x1, y2, x2-x1, y2-y1]
+                    gta = np.expand_dims(np.array(gta), axis=0)
+                    gt_box.append(gta)
+                    x_img_ = Image.open(img['filepath'].strip())
+                    x_img_ = np.array(x_img_.resize((224, 224), Image.ANTIALIAS))
+                    x_img.append(x_img_)
+
+                anchors, true_index, false_index = rpn_utils.create_Labels_For_Loss(np.array(gt_box))
+                j += 1
+
+                yield x_img, anchors, true_index, false_index
+
+
 
 
     def union(self, au, bu, area_intersection):

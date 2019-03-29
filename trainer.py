@@ -22,25 +22,24 @@ load = load(dataset_path)
 
 data = load.get_data()
 num_anchors = 9
-data_gen = load.get_anchor_gt(data, C, get_img_output_length, mode='train')
 
+
+data_get = load.get_rpn(data, C, get_img_output_length)
+# x_img, anchors, true_index, false_index = next(data_get)
 net = network()
 
 
-rpn_out = net.build_network()
-x, cls_plc, box_plc = net.get_placeholder()
+rpn_out,x = net.build_network()
+# x, cls_plc, box_plc = net.get_placeholder()
+import pdb; pdb.set_trace()
+total_loss, cls_loss, bbox_loss, true_obj_loss, false_obj_loss, g_bbox, true_index, false_index = losses.rpn_loss(rpn_out[0], rpn_out[1])
 
-# los_b = losses.smoothL1(box_plc, rpn_out[1])
-# los_c = losses.loss_cls(cls_plc, rpn_out[0])
-lsr = losses.rpn_loss_cls_org(9)
-lgr = losses.rpn_loss_regr_org(9)
-los_c = lsr(cls_plc, rpn_out[0])
-los_b = lgr(box_plc, rpn_out[1])
 
-rpn_loss = los_c + los_b
 
-tf.summary.scalar("loss", rpn_loss)
-train_step = tf.train.AdamOptimizer(1e-4).minimize(rpn_loss)
+tf.summary.scalar("total loss", total_loss)
+tf.summary.scalar("cls loss", cls_loss)
+tf.summary.scalar("bbox_loss", bbox_loss)
+train_step = tf.train.AdamOptimizer(1e-4).minimize(total_loss)
 # train_step = tf.train.GradientDescentOptimizer(1e-2).minimize(rpn_loss)
 
 saver = tf.train.Saver()
@@ -53,9 +52,9 @@ with tf.Session() as sess:
     for i in range(num_epo):
         los = 0
         for _ in range(108):
-            X, Y, image_data, debug_img, debug_num_pos = next(data_gen)
-            summary = sess.run([merged, train_step], feed_dict={x:X, cls_plc:Y[0], box_plc:Y[1]})
-            ls_val = sess.run(rpn_loss, feed_dict={x:X, cls_plc:Y[0], box_plc:Y[1]})
+            x_img, anchors, true_index_batch, false_index_batch = next(data_get)
+            summary = sess.run([merged, train_step], feed_dict={x:x_img, g_bbox:anchors, true_index:true_index_batch, false_index:false_index_batch})
+            ls_val = sess.run(total_loss, feed_dict={x:x_img, g_bbox:anchors, true_index:true_index_batch, false_index:false_index_batch})
             loss_ = ls_val + los
             los = loss_
             # print (ls_val)

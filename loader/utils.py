@@ -37,12 +37,12 @@ def train_test_split(data_path, *args):
             counter += 1
         else:
             file_train.write(i + "\n")
-def box_plot(box):
+def box_plot(img, box):
     # a = (box[0][:].split(","))
     # print (a)
 
     fig, ax = plt.subplots(1)
-    im = np.array(Image.open('/home/user1/Documents/frcnn-tf/dataset/images/human/applauding_101.jpg'),dtype=np.uint8)
+    im = np.array(Image.open(img),dtype=np.uint8)
     ax.imshow(im)
     for i in range(3):
         k = 0
@@ -199,8 +199,8 @@ def bbox_transform(ex_rois, gt_rois):
 
     return targets
 
-def bbox_plot(box):
-    im = np.array(Image.open('/home/user1/Documents/frcnn-tf/dataset/images/human/applauding_101.jpg'),dtype=np.uint8)
+def bbox_plot(img, box):
+    im = np.array(Image.open(img),dtype=np.uint8)
     fig, ax = plt.subplots(1)
     # import pdb; pdb.set_trace()
     ax.imshow(im)
@@ -336,3 +336,20 @@ def compute_iou(box1, box2):
     return float(intersect) / union
 
 
+def batch_inside_image(anchors, width, height):
+    # [b, k, A]
+    B = anchors.shape[0]
+    K = anchors.shape[1]
+    A = anchors.shape[2]
+    inds_inside = np.zeros((B, K, A), dtype=np.int32)
+    for b in range(B):
+        for k in range(K):
+            for a in range(A):
+                if anchors[b, k, a, 0] >= 0:
+                    if anchors[b, k, a, 1] >= 0:
+                        if anchors[b, k, a, 2] < width:
+                            if anchors[b, k, a, 3] < height:
+                                inds_inside[b, k, a] = 1
+
+
+    return inds_inside
