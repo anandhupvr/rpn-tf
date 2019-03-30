@@ -6,7 +6,7 @@ from models import vgg
 
 class network():
     def __init__(self, batch_size=1):
-        self._batch_size = 4
+        self._batch_size = None
 
         self.x = tf.placeholder(dtype=tf.float32, shape=[self._batch_size, 224, 224, 3], name="input_image")
         # self.cls_plc = tf.placeholder(tf.float32, shape=[self._batch_size, None, None, 18], name="rpn_cls")

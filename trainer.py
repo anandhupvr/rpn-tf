@@ -15,7 +15,7 @@ def get_img_output_length(width, height):
 
 
 
-num_epo = 1000
+num_epo = 901
 dataset_path = sys.argv[1]
 load = load(dataset_path)
 
@@ -36,8 +36,8 @@ total_loss, cls_loss, bbox_loss, true_obj_loss, false_obj_loss, g_bbox, true_ind
 
 
 tf.summary.scalar("total loss", total_loss)
-tf.summary.scalar("cls loss", cls_loss)
-tf.summary.scalar("bbox_loss", bbox_loss)
+tf.summary.scalar("rpn cls loss", cls_loss)
+tf.summary.scalar("rpn bbox loss", bbox_loss)
 train_step = tf.train.AdamOptimizer(1e-4).minimize(total_loss)
 # train_step = tf.train.GradientDescentOptimizer(1e-2).minimize(rpn_loss)
 
