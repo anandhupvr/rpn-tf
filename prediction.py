@@ -18,7 +18,7 @@ bbox_threshold = 0.2
 img = []
 # load = load(dataset_path)
 imgs = os.listdir(sys.argv[1])
-for im in imgs[0:3]:
+for im in imgs[0:4]:
     img_ = cv2.imread(os.path.join(sys.argv[1], im))
     img_ = cv2.resize(img_, (224, 224))
     img.append(img_)
