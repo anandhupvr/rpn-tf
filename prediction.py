@@ -21,7 +21,7 @@ imgs = os.listdir(sys.argv[1])
 for im in imgs[0:3]:
     img_ = cv2.imread(os.path.join(sys.argv[1], im))
     img_ = cv2.resize(img_, (224, 224))
-    img = img.append(img_)
+    img.append(img_)
 
 # im_w, im_h = img_.size()
 img_shaped = np.array(img)
