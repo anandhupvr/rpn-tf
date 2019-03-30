@@ -30,7 +30,7 @@ with tf.Session(graph=new_graph) as sess:
     tf.global_variables_initializer().run()
     saver = tf.train.import_meta_graph('weight/model_900.ckpt.meta')
     checkpoint = tf.train.latest_checkpoint('weight')
-    import pdb; db.set_trace()
+    import pdb; pdb.set_trace()
     saver.restore(sess, checkpoint)
     print ("model restored")
     img = np.expand_dims(img_.resize([224, 224]), axis=0)
