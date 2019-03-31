@@ -48,4 +48,4 @@ with tf.Session(graph=new_graph) as sess:
     boxes[0][:,[0, 2]] = boxes[0][:,[0, 2]] * 224
     boxes[0][:, [1, 3]] = boxes[0][:, [1, 3]] * 224
     nms_box = utils.non_max_suppression_fast(np.abs(boxes[0]), 0.4)
-    utils.bbox_plot(img, nms_box)
+    utils.bbox_plot(img[0], nms_box)
