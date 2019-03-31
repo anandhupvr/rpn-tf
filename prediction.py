@@ -39,7 +39,7 @@ with tf.Session(graph=new_graph) as sess:
     saver.restore(sess, checkpoint)
     print ("model restored")
     # img = np.expand_dims(img_.resize([224, 224]), axis=0)
-
+    import pdb; pdb.set_trace()
     image_tensor = tf.get_default_graph().get_tensor_by_name('input_image:0')
     rpn_cls = tf.get_default_graph().get_tensor_by_name('rpn_cls_reshaped:0')
     rpn_box = tf.get_default_graph().get_tensor_by_name('rpn_bbox_reshaped:0')
