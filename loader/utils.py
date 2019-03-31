@@ -353,3 +353,6 @@ def batch_inside_image(anchors, width, height):
 
 
     return inds_inside
+
+
+
