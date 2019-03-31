@@ -36,7 +36,6 @@ with tf.Session(graph=new_graph) as sess:
     tf.global_variables_initializer().run()
     saver = tf.train.import_meta_graph('weight/model_900.ckpt.meta')
     checkpoint = tf.train.latest_checkpoint('weight')
-    import pdb; pdb.set_trace()
     saver.restore(sess, checkpoint)
     print ("model restored")
     # img = np.expand_dims(img_.resize([224, 224]), axis=0)
@@ -49,5 +48,5 @@ with tf.Session(graph=new_graph) as sess:
     boxes = rpn[1].reshape(rpn[1].shape[0], rpn[1].shape[1]*rpn[1].shape[2], rpn[1].shape[3])
     boxes[0][:,[0, 2]] = boxes[0][:,[0, 2]] * x_ratio
     boxes[0][:, [1, 3]] = boxes[0][:, [1, 3]] * y_ratio
-    nms_box = utils.non_max_suppression_fast(boxes[0], 0.5)
+    nms_box = utils.non_max_suppression_fast(np.abs(boxes[0]), 0.5)
     utils.bbox_plot(img_, nms_box)
