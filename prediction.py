@@ -22,8 +22,10 @@ img = []
 #     img_ = cv2.imread(os.path.join(sys.argv[1], im))
 #     img_ = cv2.resize(img_, (224, 224))
 #     img.append(img_)
-img = cv2.imread(sys.argv[1])
-img = cv2.resize(img, (224, 224))
+img_ = cv2.imread(sys.argv[1])
+width, height = img_.shape[1:3]
+x_ratio, y_ratio = width/224, height/224
+img = cv2.resize(img_, (224, 224))
 img = np.expand_dims(img, axis=0)
 # im_w, im_h = img_.size()
 # img_shaped = np.array(img)
@@ -45,7 +47,7 @@ with tf.Session(graph=new_graph) as sess:
 
     rpn = sess.run([rpn_cls, rpn_box], feed_dict={image_tensor:img})
     boxes = rpn[1].reshape(rpn[1].shape[0], rpn[1].shape[1]*rpn[1].shape[2], rpn[1].shape[3])
-    nms_box = utils.non_max_suppression_fast(boxes[0])
-    utils.bbox_plot(nms_box)
-    # R = utils.rpn_to_roi(P_rpn[0], P_rpn[1], C, 'tf', overlap_thresh=0.7)
-    print ("test")
+    boxes[0][:,[0, 2]] = boxes[0][:,[0, 2]] * x_ratio
+    boxes[0][:, [1, 3]] = boxes[0][:, [1, 3]] * y_ratio
+    nms_box = utils.non_max_suppression_fast(boxes[0], 0.5)
+    utils.bbox_plot(img_, nms_box)
