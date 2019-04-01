@@ -314,7 +314,7 @@ def bbox_plot(img, box):
 		ax.add_patch(s)
 	plt.savefig("prediction.png")
 
-
+'''
 # Malisiewicz et al.
 def non_max_suppression_fast(boxes, overlapThresh):
     # if there are no boxes, return an empty list
@@ -371,3 +371,14 @@ def non_max_suppression_fast(boxes, overlapThresh):
     # return only the bounding boxes that were picked using the
     # integer data type
     return boxes[pick].astype("int")
+'''
+
+def filter(boxes, classes):
+    # """Remove all boxes with any side smaller than min_size."""
+    # ws = boxes[:, 2] - boxes[:, 0] + 1
+    # hs = boxes[:, 3] - boxes[:, 1] + 1
+    # keep = np.where((ws >= min_size) & (hs >= min_size))[0]
+    # return keep
+    ind = [i for i in range(len(classes)) if classes[i]>0.5]
+    boxes = [boxes[i] for i in range(len(boxes)) if i in ind]
+    return boxes
