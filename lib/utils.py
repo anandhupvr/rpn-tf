@@ -379,6 +379,6 @@ def filter(boxes, classes):
     # hs = boxes[:, 3] - boxes[:, 1] + 1
     # keep = np.where((ws >= min_size) & (hs >= min_size))[0]
     # return keep
-    ind = [i for i in range(len(classes)) if classes[i]>0.5]
+    ind = [i for i in range(len(classes)) if classes[i]>0.7]
     boxes = [boxes[i] for i in range(len(boxes)) if i in ind]
     return boxes
