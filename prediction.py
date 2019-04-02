@@ -39,7 +39,8 @@ with tf.Session(graph=new_graph) as sess:
     boxes = rpn[1].reshape(rpn[1].shape[0], rpn[1].shape[1]*rpn[1].shape[2], rpn[1].shape[3])
     boxes[0][:,[0, 2]] = boxes[0][:,[0, 2]] * 224
     boxes[0][:, [1, 3]] = boxes[0][:, [1, 3]] * 224
+    boxes = np.abs(boxes[0])
     classes = rpn[0].reshape(rpn[0].shape[0], rpn[0].shape[1]*rpn[0].shape[2], rpn[0].shape[3])
-    boxes = utils.filter(np.abs(boxes[0]), classes[0][:, :1])
-    nms_box = utils.non_max_suppression_fast(boxes, 0.7)
+    # boxes = utils.filter(np.abs(boxes[0]), classes[0][:, :1])
+    nms_box = utils.non_max_suppression_fast(boxes, 0.4)
     utils.bbox_plot(img[0], nms_box)
