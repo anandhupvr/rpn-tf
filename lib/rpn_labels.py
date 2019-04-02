@@ -12,6 +12,7 @@ def create_Labels_For_Loss(gt_boxes, feat_stride=16, feature_shape=(14, 14), \
 	Number of Candicate Anchors is Feature Map width * heights
 	Number of Predicted Anchors is Batch Num * Feature Map Width * Heights * 9
 	"""
+	import pdb; pdb.set_trace()
 	width = feature_shape[0]
 	height = feature_shape[1]
 	batch_size = gt_boxes.shape[0]
