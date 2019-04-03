@@ -25,10 +25,9 @@ num_anchors = 9
 
 
 data_get = load.get_rpn(data, C, get_img_output_length)
-# x_img, anchors, true_index, false_index = next(data_get)
+
 net = network()
 
-import pdb; pdb.set_trace()
 rpn_out,x = net.build_network()
 # x, cls_plc, box_plc = net.get_placeholder()
 total_loss, cls_loss, bbox_loss, true_obj_loss, false_obj_loss, g_bbox, true_index, false_index = losses.rpn_loss(rpn_out[0], rpn_out[1])
