@@ -49,7 +49,6 @@ with tf.Session() as sess:
     for i in range(num_epo):
         los = 0
         for _ in range(108):
-            import pdb; pdb.set_trace()
             x_img, anchors, true_index_batch, false_index_batch = next(data_get)
             summary = sess.run([merged, train_step], feed_dict={x:x_img, g_bbox:anchors, true_index:true_index_batch, false_index:false_index_batch})
             ls_val = sess.run(total_loss, feed_dict={x:x_img, g_bbox:anchors, true_index:true_index_batch, false_index:false_index_batch})
