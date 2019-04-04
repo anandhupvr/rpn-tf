@@ -5,14 +5,13 @@ from lib.bbox_overlaps import bbox_overlaps
 from lib.remove_extraboxes import remove_extraboxes
 
 
-def create_Labels_For_Loss(gt_boxes, feat_stride=16, feature_shape=(14, 14), \
+def create_Labels_For_Loss(gt_boxes, image_size=(224, 224), feature_shape=(14, 14), feat_stride=16, \
 						   scales=np.array([8, 16, 32]), ratios=[0.5, 0.8, 1], \
-						   image_size=(224, 224)):
+						   ):
 	"""This Function is processed before network input
 	Number of Candicate Anchors is Feature Map width * heights
 	Number of Predicted Anchors is Batch Num * Feature Map Width * Heights * 9
 	"""
-	import pdb; pdb.set_trace()
 	width = feature_shape[0]
 	height = feature_shape[1]
 	batch_size = gt_boxes.shape[0]
@@ -29,7 +28,6 @@ def create_Labels_For_Loss(gt_boxes, feat_stride=16, feature_shape=(14, 14), \
 	anchors = np.zeros((batch_size, A, 4))
 	anchors = generate_anchors(scales=scales, ratios=ratios) # Shape is [A, 4]
 	candicate_anchors = centers.reshape(batch_size, K, 1, 4) + anchors # [Batch, K, A, 4]
-
 	# shape is [B, K, A]
 	is_inside = utils.batch_inside_image(candicate_anchors, image_size[1], image_size[0])
 	# candicate_anchors: Shape is [Batch, K, A, 4]
@@ -40,7 +38,6 @@ def create_Labels_For_Loss(gt_boxes, feat_stride=16, feature_shape=(14, 14), \
 		np.ascontiguousarray(candicate_anchors, dtype=np.float),
 		is_inside,
 		gt_boxes)
-
 	for i in range(batch_size):
 		true_where = np.where(true_index[i] == 1)
 		num_true = len(true_where[0])
@@ -57,5 +54,4 @@ def create_Labels_For_Loss(gt_boxes, feat_stride=16, feature_shape=(14, 14), \
 		batch = np.ones((select.shape[0]), dtype=np.int) * i
 		false_where = remove_extraboxes(false_where[0], false_where[1], select, batch)
 		false_index[false_where] = 0
-
 	return candicate_anchors, true_index, false_index

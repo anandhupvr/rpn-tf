@@ -75,13 +75,6 @@ class load:
             j = 0
             for i in range(0, len(all_img_data), batch_size):
                 imgs = all_img_data[i:i+batch_size]
-                # rpn_labels = []
-                # rpn_bbox_targets = []
-                # rpn_bbox_inside_weights = []
-                # rpn_bbox_outside_weights = []
-                # bbox_targets = []
-                # bbox_inside_weights = []
-                # bbox_outside_weights = []
                 x_img = []
                 gt_box = []
 
@@ -90,21 +83,39 @@ class load:
                     x2 = img['bboxes'][0]['x2']
                     y1 = img['bboxes'][0]['y1']
                     y2 = img['bboxes'][0]['y2']
-                    gta = [x1, y2, x2-x1, y2-y1]
+                    # gta = [x1, y2, x2-x1, y2-y1]
+                    x_img_ = cv2.imread(img['filepath'].strip())
+                    width, height = x_img_.shape[0:2]
+                    gta = [x1*(224/width), y1*(224/height), x2*(224/width), y2*(224/height)]
                     gta = np.expand_dims(np.array(gta), axis=0)
                     gt_box.append(gta)
-                    x_img_ = cv2.imread(img['filepath'].strip())
+
+                    # f_w, f_h = int(width/16), int(height/16)
                     x_img_ = cv2.resize(x_img_, (224, 224))
-                    # x_img_ = Image.open(img['filepath'].strip())
-                    # x_img_ = np.array(x_img_.resize((224, 224), Image.ANTIALIAS))
                     x_img.append(x_img_)
                 anchors, true_index, false_index = rpn_utils.create_Labels_For_Loss(np.array(gt_box))
                 x_img = np.array(x_img)
+                # x_img = self.convert_imgslist_to_ndarray(x_img)
                 j += 1
 
                 yield x_img, anchors, true_index, false_index
 
 
+
+    # def convert_imgslist_to_ndarray(self, images):
+    #     """Convert a list of images into a network input.
+    #     Assumes images are already prepared (means subtracted, BGR order, ...).
+
+    #     In this stage, the shape of images are different
+    #     """
+    #     max_shape = np.array([im.shape for im in images]).max(axis=0)
+    #     num_images = len(images)
+    #     blob = np.zeros((num_images, max_shape[0], max_shape[1], 3),
+    #                     dtype=np.float32)
+    #     for i in range(num_images):
+    #         im = images[i]
+    #         blob[i, 0:im.shape[0], 0:im.shape[1], :] = im
+    #     return blob
 
 
     def union(self, au, bu, area_intersection):

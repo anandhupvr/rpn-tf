@@ -42,7 +42,6 @@ train_step = tf.train.AdamOptimizer(1e-4).minimize(total_loss)
 
 saver = tf.train.Saver()
 
-
 with tf.Session() as sess:
     train_writer = tf.summary.FileWriter( 'logs/', sess.graph)
     merged = tf.summary.merge_all()
@@ -50,12 +49,13 @@ with tf.Session() as sess:
     for i in range(num_epo):
         los = 0
         for _ in range(108):
+            import pdb; pdb.set_trace()
             x_img, anchors, true_index_batch, false_index_batch = next(data_get)
             summary = sess.run([merged, train_step], feed_dict={x:x_img, g_bbox:anchors, true_index:true_index_batch, false_index:false_index_batch})
             ls_val = sess.run(total_loss, feed_dict={x:x_img, g_bbox:anchors, true_index:true_index_batch, false_index:false_index_batch})
             loss_ = ls_val + los
             los = loss_
-            # print (ls_val)
+            print (ls_val)
         train_writer.add_summary(summary[0], i)
         print ("epoch : %s  ***** avg losss : %s ***** "%(i, loss_/108))
 
