@@ -58,6 +58,7 @@ def bbox_overlaps(anchors, is_inside, gt_boxes):
 		for k in range(K):
 			for a in range(A):
 				if is_inside[b, k, a] == 1:
+					print (b, k, a)
 					max_overlap = 0
 					max_g = 0
 					for g in range(G):
@@ -79,11 +80,9 @@ def bbox_overlaps(anchors, is_inside, gt_boxes):
 						gt_height = gt_boxes[b][max_g, 3] - gt_boxes[b][max_g, 1] + 1
 						gt_center_x = gt_boxes[b][max_g, 0] + gt_width / 2.0
 						gt_center_y = gt_boxes[b][max_g, 1] + gt_height / 2.0
-
 						anchors[b, k, a, 0] = (gt_center_x - ex_center_x) / (ex_width)
 						anchors[b, k, a, 1] = (gt_center_y - ex_center_y) / (ex_height)
 						anchors[b, k, a, 2] = np.log(gt_width / (ex_width))
 						anchors[b, k, a, 3] = np.log(gt_height / (ex_height))
-
 
 	return anchors, true_index, flase_index

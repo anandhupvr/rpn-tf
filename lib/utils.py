@@ -156,77 +156,77 @@ def apply_regr_np(X, T):
 		print(e)
 		return X
 
-def non_max_suppression_fast(boxes, probs, overlap_thresh=0.9, max_boxes=300):
-	try:
+# def non_max_suppression_fast(boxes, probs, overlap_thresh=0.9, max_boxes=300):
+# 	try:
 
-		# code used from here: http://www.pyimagesearch.com/2015/02/16/faster-non-maximum-suppression-python/
-		# if there are no boxes, return an empty list
-		if len(boxes) == 0:
-			return []
-		# grab the coordinates of the bounding boxes
-		x1 = boxes[:, 0]
-		y1 = boxes[:, 1]
-		x2 = boxes[:, 2]
-		y2 = boxes[:, 3]
+# 		# code used from here: http://www.pyimagesearch.com/2015/02/16/faster-non-maximum-suppression-python/
+# 		# if there are no boxes, return an empty list
+# 		if len(boxes) == 0:
+# 			return []
+# 		# grab the coordinates of the bounding boxes
+# 		x1 = boxes[:, 0]
+# 		y1 = boxes[:, 1]
+# 		x2 = boxes[:, 2]
+# 		y2 = boxes[:, 3]
 
-		np.testing.assert_array_less(x1, x2)
-		np.testing.assert_array_less(y1, y2)
+# 		np.testing.assert_array_less(x1, x2)
+# 		np.testing.assert_array_less(y1, y2)
 
-		# if the bounding boxes integers, convert them to floats --
-		# this is important since we'll be doing a bunch of divisions
-		if boxes.dtype.kind == "i":
-			boxes = boxes.astype("float")
+# 		# if the bounding boxes integers, convert them to floats --
+# 		# this is important since we'll be doing a bunch of divisions
+# 		if boxes.dtype.kind == "i":
+# 			boxes = boxes.astype("float")
 
-		# initialize the list of picked indexes	
-		pick = []
+# 		# initialize the list of picked indexes	
+# 		pick = []
 
-		# calculate the areas
-		area = (x2 - x1) * (y2 - y1)
+# 		# calculate the areas
+# 		area = (x2 - x1) * (y2 - y1)
 
-		# sort the bounding boxes 
-		idxs = np.argsort(probs)
+# 		# sort the bounding boxes 
+# 		idxs = np.argsort(probs)
 
-		# keep looping while some indexes still remain in the indexes
-		# list
-		while len(idxs) > 0:
-			# grab the last index in the indexes list and add the
-			# index value to the list of picked indexes
-			last = len(idxs) - 1
-			i = idxs[last]
-			pick.append(i)
+# 		# keep looping while some indexes still remain in the indexes
+# 		# list
+# 		while len(idxs) > 0:
+# 			# grab the last index in the indexes list and add the
+# 			# index value to the list of picked indexes
+# 			last = len(idxs) - 1
+# 			i = idxs[last]
+# 			pick.append(i)
 
-			# find the intersection
+# 			# find the intersection
 
-			xx1_int = np.maximum(x1[i], x1[idxs[:last]])
-			yy1_int = np.maximum(y1[i], y1[idxs[:last]])
-			xx2_int = np.minimum(x2[i], x2[idxs[:last]])
-			yy2_int = np.minimum(y2[i], y2[idxs[:last]])
+# 			xx1_int = np.maximum(x1[i], x1[idxs[:last]])
+# 			yy1_int = np.maximum(y1[i], y1[idxs[:last]])
+# 			xx2_int = np.minimum(x2[i], x2[idxs[:last]])
+# 			yy2_int = np.minimum(y2[i], y2[idxs[:last]])
 
-			ww_int = np.maximum(0, xx2_int - xx1_int)
-			hh_int = np.maximum(0, yy2_int - yy1_int)
+# 			ww_int = np.maximum(0, xx2_int - xx1_int)
+# 			hh_int = np.maximum(0, yy2_int - yy1_int)
 
-			area_int = ww_int * hh_int
+# 			area_int = ww_int * hh_int
 
-			# find the union
-			area_union = area[i] + area[idxs[:last]] - area_int
+# 			# find the union
+# 			area_union = area[i] + area[idxs[:last]] - area_int
 
-			# compute the ratio of overlap
-			overlap = area_int/(area_union + 1e-6)
+# 			# compute the ratio of overlap
+# 			overlap = area_int/(area_union + 1e-6)
 
-			# delete all indexes from the index list that have
-			idxs = np.delete(idxs, np.concatenate(([last],
-				np.where(overlap > overlap_thresh)[0])))
+# 			# delete all indexes from the index list that have
+# 			idxs = np.delete(idxs, np.concatenate(([last],
+# 				np.where(overlap > overlap_thresh)[0])))
 
-			if len(pick) >= max_boxes:
-				break
+# 			if len(pick) >= max_boxes:
+# 				break
 
-		# return only the bounding boxes that were picked using the integer data type
-		boxes = boxes[pick].astype("int")
-		probs = probs[pick]
-		return boxes, probs
+# 		# return only the bounding boxes that were picked using the integer data type
+# 		boxes = boxes[pick].astype("int")
+# 		probs = probs[pick]
+# 		return boxes, probs
 
-	except:
-		pass
+# 	except:
+# 		pass
 
 
 import time
@@ -312,10 +312,9 @@ def bbox_plot(img, box):
 		s = patches.Rectangle((box[i][k], box[i][k+1]), box[i][k+2], box[i][k+3], linewidth=1, edgecolor='g', facecolor="none")
 		# s = patches.Rectangle((box[i][0], box[i][1]), box[i][2], box[i][3], linewidth=1, edgecolor='g', facecolor="none")
 		ax.add_patch(s)
-	# plt.show()
-	plt.savefig("prediction.png")
+	plt.show()
+	# plt.savefig("prediction.png")
 
-'''
 # Malisiewicz et al.
 def non_max_suppression_fast(boxes, overlapThresh):
     # if there are no boxes, return an empty list
@@ -372,7 +371,6 @@ def non_max_suppression_fast(boxes, overlapThresh):
     # return only the bounding boxes that were picked using the
     # integer data type
     return boxes[pick].astype("int")
-'''
 
 def filter(boxes, classes):
     # """Remove all boxes with any side smaller than min_size."""
@@ -382,4 +380,56 @@ def filter(boxes, classes):
     # return keep
     ind = [i for i in range(len(classes)) if classes[i]>0.6]
     boxes = [boxes[i] for i in range(len(boxes)) if i in ind]
+    return boxes
+
+def bbox_transform_inv(boxes, deltas):
+    '''
+    Applies deltas to box coordinates to obtain new boxes, as described by 
+    deltas
+    '''   
+    if boxes.shape[0] == 0:
+        return np.zeros((0, deltas.shape[1]), dtype=deltas.dtype)
+
+    boxes = boxes.astype(deltas.dtype, copy=False)
+
+    widths = boxes[:, 2] - boxes[:, 0] + 1.0
+    heights = boxes[:, 3] - boxes[:, 1] + 1.0
+    ctr_x = boxes[:, 0] + 0.5 * widths
+    ctr_y = boxes[:, 1] + 0.5 * heights
+
+    dx = deltas[:, 0::4]
+    dy = deltas[:, 1::4]
+    dw = deltas[:, 2::4]
+    dh = deltas[:, 3::4]
+
+    pred_ctr_x = dx * widths[:, np.newaxis] + ctr_x[:, np.newaxis]
+    pred_ctr_y = dy * heights[:, np.newaxis] + ctr_y[:, np.newaxis]
+    pred_w = np.exp(dw) * widths[:, np.newaxis]
+    pred_h = np.exp(dh) * heights[:, np.newaxis]
+
+    pred_boxes = np.zeros(deltas.shape, dtype=deltas.dtype)
+    # x1
+    pred_boxes[:, 0::4] = pred_ctr_x - 0.5 * pred_w
+    # y1
+    pred_boxes[:, 1::4] = pred_ctr_y - 0.5 * pred_h
+    # x2
+    pred_boxes[:, 2::4] = pred_ctr_x + 0.5 * pred_w
+    # y2
+    pred_boxes[:, 3::4] = pred_ctr_y + 0.5 * pred_h
+
+    return pred_boxes
+
+def clip_boxes(boxes, im_shape):
+    """
+    Clip boxes to image boundaries.
+    """
+
+    # x1 >= 0
+    boxes[:, 0::4] = np.maximum(np.minimum(boxes[:, 0::4], im_shape[1] - 1), 0)
+    # y1 >= 0
+    boxes[:, 1::4] = np.maximum(np.minimum(boxes[:, 1::4], im_shape[0] - 1), 0)
+    # x2 < im_shape[1]
+    boxes[:, 2::4] = np.maximum(np.minimum(boxes[:, 2::4], im_shape[1] - 1), 0)
+    # y2 < im_shape[0]
+    boxes[:, 3::4] = np.maximum(np.minimum(boxes[:, 3::4], im_shape[0] - 1), 0)
     return boxes
