@@ -58,7 +58,6 @@ def bbox_overlaps(anchors, is_inside, gt_boxes):
 		for k in range(K):
 			for a in range(A):
 				if is_inside[b, k, a] == 1:
-					print (b, k, a)
 					max_overlap = 0
 					max_g = 0
 					for g in range(G):
