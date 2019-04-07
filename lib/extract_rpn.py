@@ -33,7 +33,7 @@ def extractor(rpn_bbox, rpn_cls, im_dims=(224, 224), scales=np.array([8, 16, 32]
 	proposals = proposals[order, :]
 	scores = scores[order]
 	box = non_max_suppression_fast(proposals, 0.7)
-	return proposals, scores
+	return proposals, scores, box
 
 
 
