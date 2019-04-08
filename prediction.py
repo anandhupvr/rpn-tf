@@ -28,7 +28,7 @@ new_graph = tf.Graph()
 
 with tf.Session(graph=new_graph) as sess:
     tf.global_variables_initializer().run()
-    saver = tf.train.import_meta_graph('weight/model_900.ckpt.meta')
+    saver = tf.train.import_meta_graph('weight/model_600.ckpt.meta')
     checkpoint = tf.train.latest_checkpoint('weight')
     saver.restore(sess, checkpoint)
     print ("model restored")
@@ -38,9 +38,11 @@ with tf.Session(graph=new_graph) as sess:
     rpn = sess.run([rpn_cls, rpn_box], feed_dict={image_tensor:img})
     boxes = rpn[1].reshape(rpn[1].shape[0], rpn[1].shape[1]*rpn[1].shape[2], rpn[1].shape[3])
     classes = rpn[0].reshape(rpn[0].shape[0], rpn[0].shape[1]*rpn[0].shape[2], rpn[0].shape[3])
+    import pdb; pdb.set_trace()
+
     box, probs, test_box = extractor(boxes, classes)
 
-    import pdb; pdb.set_trace()
+
 
 
 
@@ -55,7 +57,7 @@ with tf.Session(graph=new_graph) as sess:
     
     # boxes = utils.filter(boxes[0], classes[0][:, :1])
     
-    utils.bbox_plot(img[0], box)
+    utils.bbox_plot(img[0], test_box)
     print ("Done")
     # boxes[0][:,[0, 2]] = boxes[0][:,[0, 2]] * 16
     # boxes[0][:, [1, 3]] = boxes[0][:, [1, 3]] * 16

@@ -27,7 +27,7 @@ def extractor(rpn_bbox, rpn_cls, im_dims=(224, 224), scales=np.array([8, 16, 32]
 	scores = rpn_cls[0][:, 1:]
 	scores = scores[keep, :]
 	order = scores.ravel().argsort()[::-1]
-	postNMS = 10
+	postNMS = 50
 	if postNMS > 0:
 		order = order[:postNMS]
 	proposals = proposals[order, :]
