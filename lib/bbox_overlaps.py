@@ -7,6 +7,8 @@ def bbox_overlaps(anchors, is_inside, gt_boxes):
 	Batch_Size = anchors.shape[0]
 	K = anchors.shape[1]
 	A = anchors.shape[2]
+	gt = gt_boxes.shape[1]
+
 
 	true_index = np.zeros((Batch_Size, K, A), dtype=np.int32)
 	flase_index = np.zeros((Batch_Size, K, A), dtype=np.int32)
@@ -14,6 +16,20 @@ def bbox_overlaps(anchors, is_inside, gt_boxes):
 	max_g = 0
 
 	for b in range(Batch_Size):
+
+		for j in range(gt):
+			gt_boxes[b,j, 0] = gt_boxes[b,j, 0] / 16.
+			gt_boxes[b,j, 1] = gt_boxes[b,j, 1] / 16.
+			gt_boxes[b,j, 2] = gt_boxes[b,j, 2] / 16.
+			gt_boxes[b,j, 3] = gt_boxes[b,j, 3] / 16.
+		for k in range(K):
+			for a in range(A):
+				if is_inside[b, k, a] == 1:
+					anchors[b, k, a, 0] = anchors[b, k, a, 0] / 16.
+					anchors[b, k, a, 1] = anchors[b, k, a, 1] / 16.
+					anchors[b, k, a, 2] = anchors[b, k, a, 2] / 16.
+					anchors[b, k, a, 3] = anchors[b, k, a, 3] / 16.
+
 		if max_g < gt_boxes[b].shape[0]:
 			max_g = gt_boxes[b].shape[0]
 	overlaps = np.zeros((Batch_Size, K, A, max_g))
