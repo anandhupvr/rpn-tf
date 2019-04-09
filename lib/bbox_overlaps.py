@@ -87,7 +87,6 @@ def bbox_overlaps(anchors, is_inside, gt_boxes):
 							flase_index[b, k, a] = 1
 
 					if true_index[b, k, a] == 1:
-						print (b, k, a)
 						ex_width = anchors[b, k, a, 2] - anchors[b, k, a, 0] + 1
 						ex_height = anchors[b, k, a, 3] - anchors[b, k, a, 1] + 1
 						ex_center_x = anchors[b, k, a, 0] + ex_width / 2.0
