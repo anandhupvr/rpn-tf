@@ -50,12 +50,6 @@ def create_Labels_For_Loss(gt_boxes, image_size=(224, 224), feature_shape=(14, 1
 			true_index[true_where] = 0
 		false_where = np.where(false_index[i] == 0)
 		num_false = len(false_where[0])
-		if num_false == 0:
-			import pdb; pdb.set_trace()
-		print ("------")
-		print (num_false)
-		print (num_true)
-		print ("------")
 		select = np.random.choice(num_false, num_false - (128-num_true), replace=False)
 		batch = np.ones((select.shape[0]), dtype=np.int) * i
 		false_where = remove_extraboxes(false_where[0], false_where[1], select, batch)
