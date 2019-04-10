@@ -80,7 +80,7 @@ def bbox_overlaps(anchors, is_inside, gt_boxes):
 						if overlaps[b, k, a, g] > 0:
 							max_overlap = overlaps[b, k, a, g]
 							max_g = g
-					if max_overlap > 0.7:
+					if max_overlap > 0.6:
 						true_index[b, k, a] = 1
 					else:
 						if max_overlap <= 0.3:

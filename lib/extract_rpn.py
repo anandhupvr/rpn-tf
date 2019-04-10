@@ -18,7 +18,6 @@ def extractor(rpn_bbox, rpn_cls, im_dims=(224, 224), scales=np.array([8, 16, 32]
 	K = shifts.shape[0]
 	anchors = anchors.reshape((1, A, 4)) + \
 				shifts.reshape((1, K, 4)).transpose((1, 0, 2))
-
 	anchors = anchors.reshape((K*A, 4))
 	proposals = bbox_transform_inv(anchors, rpn_bbox[0])
 	proposals = clip_boxes(proposals, im_dims)
@@ -27,12 +26,12 @@ def extractor(rpn_bbox, rpn_cls, im_dims=(224, 224), scales=np.array([8, 16, 32]
 	scores = rpn_cls[0][:, 1:]
 	scores = scores[keep, :]
 	order = scores.ravel().argsort()[::-1]
-	postNMS = 5
+	postNMS = 100
 	if postNMS > 0:
 		order = order[:postNMS]
 	proposals = proposals[order, :]
 	scores = scores[order]
-	box = non_max_suppression_fast(proposals, 0.7)
+	box = non_max_suppression_fast(proposals, 0.5)
 	return proposals, scores, box
 
 
