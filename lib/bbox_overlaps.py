@@ -83,7 +83,7 @@ def bbox_overlaps(anchors, is_inside, gt_boxes):
 					if max_overlap > 0.6:
 						true_index[b, k, a] = 1
 					else:
-						if max_overlap <= 0.3:
+						if max_overlap <= 0.35:
 							flase_index[b, k, a] = 1
 
 					if true_index[b, k, a] == 1:
