@@ -38,7 +38,7 @@ tf.summary.scalar("total loss", total_loss)
 tf.summary.scalar("rpn cls loss", cls_loss)
 tf.summary.scalar("rpn bbox loss", bbox_loss)
 # train_step = tf.train.AdamOptimizer(1e-4).minimize(total_loss)
-train_step = tf.train.GradientDescentOptimizer(1e-3).minimize(total_loss)
+train_step = tf.train.GradientDescentOptimizer(1e-4).minimize(total_loss)
 
 saver = tf.train.Saver()
 
