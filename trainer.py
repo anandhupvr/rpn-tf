@@ -11,7 +11,7 @@ import lib.utils as utils
 
 C = Config()
 def get_img_output_length(width, height):
-    return (int(width/16),int(height/16))
+	return (int(width/16),int(height/16))
 
 
 
@@ -43,25 +43,22 @@ train_step = tf.train.AdamOptimizer(1e-4).minimize(total_loss)
 saver = tf.train.Saver()
 
 with tf.Session() as sess:
-    train_writer = tf.summary.FileWriter( 'logs/', sess.graph)
-    merged = tf.summary.merge_all()
-    sess.run(tf.global_variables_initializer())
-    for i in range(num_epo):
-        los = 0
-        # manualy done as per batch size
-        for _ in range(108):
-            x_img, anchors, true_index_batch, false_index_batch = next(data_get)
-            B = anchors.shape[0]
-            K = anchors.shape[1]
-            A = anchors.shape[2]
-            summary = sess.run([merged, train_step], feed_dict={x:x_img, g_bbox:anchors, true_index:true_index_batch, false_index:false_index_batch})
-            ls_val = sess.run(total_loss, feed_dict={x:x_img, g_bbox:anchors, true_index:true_index_batch, false_index:false_index_batch})
-            loss_ = ls_val + los
-            los = loss_
-            # print (ls_val)
-        train_writer.add_summary(summary[0], i)
-        print ("epoch : %s  ***** avg losss : %s ***** "%(i, loss_/108))
+	train_writer = tf.summary.FileWriter( 'logs/', sess.graph)
+	merged = tf.summary.merge_all()
+	sess.run(tf.global_variables_initializer())
+	for i in range(num_epo):
+		los = 0
+		# manualy done as per batch size
+		for _ in range(108):
+			x_img, anchors, true_index_batch, false_index_batch = next(data_get)
+			summary = sess.run([merged, train_step], feed_dict={x:x_img, g_bbox:anchors, true_index:true_index_batch, false_index:false_index_batch})
+			ls_val = sess.run(total_loss, feed_dict={x:x_img, g_bbox:anchors, true_index:true_index_batch, false_index:false_index_batch})
+			loss_ = ls_val + los
+			los = loss_
+			# print (ls_val)
+		train_writer.add_summary(summary[0], i)
+		print ("epoch : %s  ***** avg losss : %s ***** "%(i, loss_/108))
 
-        if i%100 == 0:
-            save_path = saver.save(sess, 'weight/'+"model_{}.ckpt".format(i))
-            print ("epoch : %s   saved at  %s "%(i, save_path))
+		if i%100 == 0:
+			save_path = saver.save(sess, 'weight/'+"model_{}.ckpt".format(i))
+			print ("epoch : %s   saved at  %s "%(i, save_path))
