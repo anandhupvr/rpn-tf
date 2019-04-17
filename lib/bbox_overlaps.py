@@ -2,7 +2,7 @@ import numpy as np
 
 
 
-def bbox_overlaps(anchors, is_inside, gt_boxes):
+def bbox_overlaps(img, anchors, is_inside, gt_boxes):
 
 	Batch_Size = anchors.shape[0]
 	K = anchors.shape[1]
@@ -11,7 +11,7 @@ def bbox_overlaps(anchors, is_inside, gt_boxes):
 
 
 	true_index = np.zeros((Batch_Size, K, A), dtype=np.int32)
-	flase_index = np.zeros((Batch_Size, K, A), dtype=np.int32)
+	false_index = np.zeros((Batch_Size, K, A), dtype=np.int32)
 
 	max_g = 0
 
@@ -80,13 +80,18 @@ def bbox_overlaps(anchors, is_inside, gt_boxes):
 						if overlaps[b, k, a, g] > 0:
 							max_overlap = overlaps[b, k, a, g]
 							max_g = g
-					if max_overlap > 0.6:
+					if max_overlap > 0.7:
 						true_index[b, k, a] = 1
 					else:
-						if max_overlap <= 0.35:
-							flase_index[b, k, a] = 1
+						if max_overlap <= 0.3:
+							false_index[b, k, a] = 1
 
 					if true_index[b, k, a] == 1:
+						# import pdb; pdb.set_trace()
+						# import lib.utils as utils
+						# utils.bbox_plot(img[k], [anchors[b, k, a, :].tolist()])
+
+
 						ex_width = anchors[b, k, a, 2] - anchors[b, k, a, 0] + 1
 						ex_height = anchors[b, k, a, 3] - anchors[b, k, a, 1] + 1
 						ex_center_x = anchors[b, k, a, 0] + ex_width / 2.0
@@ -100,4 +105,4 @@ def bbox_overlaps(anchors, is_inside, gt_boxes):
 						anchors[b, k, a, 2] = np.log(gt_width / (ex_width))
 						anchors[b, k, a, 3] = np.log(gt_height / (ex_height))
 
-	return anchors, true_index, flase_index
+	return anchors, true_index, false_index

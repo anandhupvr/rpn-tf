@@ -85,11 +85,12 @@ class load:
                     y2 = img['bboxes'][0]['y2']
                     # gta = [x1, y2, x2-x1, y2-y1]
                     x_img_ = cv2.imread(img['filepath'].strip())
-                    width, height = x_img_.shape[0:2]
+                    height, width = x_img_.shape[0:2]
                     gta = [x1*(224/width), y1*(224/height), x2*(224/width), y2*(224/height)]
                     gta = np.expand_dims(np.array(gta), axis=0)
                     gt_box.append(gta)
                     x_img_ = cv2.resize(x_img_, (224, 224))
+                    utils.bbox_plot(x_img_, [gt_box])
                     x_img.append(x_img_)
                 anchors, true_index, false_index = rpn_utils.create_Labels_For_Loss(np.array(gt_box))
                 x_img = np.array(x_img)
