@@ -17,18 +17,18 @@ def bbox_overlaps(anchors, is_inside, gt_boxes):
 
 	for b in range(Batch_Size):
 
-		for j in range(gt):
-			gt_boxes[b,j, 1] = gt_boxes[b,j, 1] * float(16./224)
-			gt_boxes[b,j, 0] = gt_boxes[b,j, 0] * float(16./224)
-			gt_boxes[b,j, 2] = gt_boxes[b,j, 2] * float(16./224)
-			gt_boxes[b,j, 3] = gt_boxes[b,j, 3] * float(16./224)
-		for k in range(K):
-			for a in range(A):
-				if is_inside[b, k, a] == 1:
-					anchors[b, k, a, 0] = anchors[b, k, a, 0] * float(16./224)
-					anchors[b, k, a, 1] = anchors[b, k, a, 1] * float(16./224)
-					anchors[b, k, a, 2] = anchors[b, k, a, 2] * float(16./224)
-					anchors[b, k, a, 3] = anchors[b, k, a, 3] * float(16./224)
+		# for j in range(gt):
+		# 	gt_boxes[b,j, 1] = gt_boxes[b,j, 1] * float(16./224)
+		# 	gt_boxes[b,j, 0] = gt_boxes[b,j, 0] * float(16./224)
+		# 	gt_boxes[b,j, 2] = gt_boxes[b,j, 2] * float(16./224)
+		# 	gt_boxes[b,j, 3] = gt_boxes[b,j, 3] * float(16./224)
+		# for k in range(K):
+		# 	for a in range(A):
+		# 		if is_inside[b, k, a] == 1:
+		# 			anchors[b, k, a, 0] = anchors[b, k, a, 0] * float(16./224)
+		# 			anchors[b, k, a, 1] = anchors[b, k, a, 1] * float(16./224)
+		# 			anchors[b, k, a, 2] = anchors[b, k, a, 2] * float(16./224)
+		# 			anchors[b, k, a, 3] = anchors[b, k, a, 3] * float(16./224)
 
 		if max_g < gt_boxes[b].shape[0]:
 			max_g = gt_boxes[b].shape[0]
