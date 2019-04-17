@@ -5,7 +5,7 @@ from lib.bbox_overlaps import bbox_overlaps
 from lib.remove_extraboxes import remove_extraboxes
 
 
-def create_Labels_For_Loss(img, gt_boxes, image_size=(224, 224), feature_shape=(14, 14), feat_stride=16, \
+def create_Labels_For_Loss(gt_boxes, image_size=(224, 224), feature_shape=(14, 14), feat_stride=16, \
 						   scales=np.array([8, 16, 32]), ratios=[0.5, 0.8, 1], \
 						   ):
 	"""This Function is processed before network input

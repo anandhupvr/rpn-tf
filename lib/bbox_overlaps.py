@@ -2,7 +2,7 @@ import numpy as np
 
 
 
-def bbox_overlaps(img, anchors, is_inside, gt_boxes):
+def bbox_overlaps(anchors, is_inside, gt_boxes):
 
 	Batch_Size = anchors.shape[0]
 	K = anchors.shape[1]
