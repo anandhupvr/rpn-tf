@@ -18,8 +18,8 @@ def bbox_overlaps(anchors, is_inside, gt_boxes):
 	for b in range(Batch_Size):
 
 		# for j in range(gt):
-		# 	gt_boxes[b,j, 1] = gt_boxes[b,j, 1] * float(16./224)
 		# 	gt_boxes[b,j, 0] = gt_boxes[b,j, 0] * float(16./224)
+		# 	gt_boxes[b,j, 1] = gt_boxes[b,j, 1] * float(16./224)
 		# 	gt_boxes[b,j, 2] = gt_boxes[b,j, 2] * float(16./224)
 		# 	gt_boxes[b,j, 3] = gt_boxes[b,j, 3] * float(16./224)
 		# for k in range(K):
@@ -80,16 +80,16 @@ def bbox_overlaps(anchors, is_inside, gt_boxes):
 						if overlaps[b, k, a, g] > 0:
 							max_overlap = overlaps[b, k, a, g]
 							max_g = g
-					if max_overlap > 0.7:
+					if max_overlap > 0.6:
 						true_index[b, k, a] = 1
 					else:
-						if max_overlap <= 0.3:
+						if max_overlap <= 0.35:
 							false_index[b, k, a] = 1
 
 					if true_index[b, k, a] == 1:
 						# import pdb; pdb.set_trace()
 						# import lib.utils as utils
-						# utils.bbox_plot(img[k], [anchors[b, k, a, :].tolist()])
+						# utils.bbox_plot(img[a], [anchors[b, k, a, :].tolist()])
 
 
 						ex_width = anchors[b, k, a, 2] - anchors[b, k, a, 0] + 1
