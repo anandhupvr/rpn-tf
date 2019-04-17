@@ -90,7 +90,6 @@ class load:
                     gta = np.expand_dims(np.array(gta), axis=0)
                     gt_box.append(gta)
                     x_img_ = cv2.resize(x_img_, (224, 224))
-                    utils.bbox_plot(x_img_, [gt_box])
                     x_img.append(x_img_)
                 anchors, true_index, false_index = rpn_utils.create_Labels_For_Loss(np.array(gt_box))
                 x_img = np.array(x_img)
