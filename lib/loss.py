@@ -26,7 +26,7 @@ def rpn_loss(rpn_cls, rpn_bbox):
     true_obj_loss = -tf.reduce_sum(tf.multiply(tf.log(rpn_cls[:, :, :, 0]+elosion), true_index))
     false_obj_loss = -tf.reduce_sum(tf.multiply(tf.log(rpn_cls[:, :, :, 1]+elosion), false_index))
     obj_loss = tf.add(true_obj_loss, false_obj_loss)
-    cls_loss = tf.div(obj_loss, 16) # L(cls) / N(cls) N=batch size
+    cls_loss = tf.div(obj_loss, 4) # L(cls) / N(cls) N=batch size
 
     bbox_loss = smooth_L1(tf.subtract(rpn_bbox, g_bbox))
     bbox_loss = tf.reduce_sum(tf.multiply(tf.reduce_sum(bbox_loss, 3), true_index))
