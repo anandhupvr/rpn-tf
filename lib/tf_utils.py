@@ -23,7 +23,6 @@ def batch_slice(inputs, graph_fn, batch_size, names=None):
     if not isinstance(inputs, list):
         inputs = [inputs]
     outputs = []
-    import pdb; pdb.set_trace()
     for i in range(batch_size):
         inputs_slice = [x[i] for x in inputs]
         output_slice = graph_fn(*inputs_slice)
