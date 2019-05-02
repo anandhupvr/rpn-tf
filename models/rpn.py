@@ -40,15 +40,15 @@ class RPN:
 				kernel_initializer='he_normal',
 				name='rpn_class_raw',
 				reuse=tf.AUTO_REUSE)
-		rpn_class_logits = tf.reshape(x, [tf.shape(x)[0], -1, 2])
-		rpn_probs = tf.nn.softmax(rpn_class_logits)
+		rpn_class_logits = tf.reshape(x, [tf.shape(x)[0], -1, 2], name='rpn_cls_pred')
+		rpn_probs = tf.nn.softmax(rpn_class_logits, name='rpn_cls_softmax')
 
 		x = tf.layers.conv2d(x, 9 * 4, (1, 1),
 			kernel_initializer='he_normal',
 			name='rpn_bbox_pred',
 			reuse=tf.AUTO_REUSE)
 
-		rpn_deltas = tf.reshape(x, [tf.shape(x)[0], -1, 4])
+		rpn_deltas = tf.reshape(x, [tf.shape(x)[0], -1, 4], name='rpn_bbox_pred')
 		# layers_outputs.append([rpn_class_logits, rpn_probs, rpn_deltas])
 		print(rpn_class_logits.shape, rpn_probs.shape, rpn_deltas.shape)
 			

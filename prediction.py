@@ -2,12 +2,12 @@ import tensorflow as tf
 import cv2
 import sys
 # from loader.DataLoader import load
-import lib.utils as utils
+# import lib.utils as utils
 import cv2
 import numpy as np
 from config.parameters import Config
 import os
-from lib.extract_rpn import extractor 
+# from lib.extract_rpn import extractor 
 
 tf.reset_default_graph()
 
@@ -19,20 +19,29 @@ img = []
 
 img_ = cv2.imread(sys.argv[1])
 width, height = img_.shape[1:3]
-x_ratio, y_ratio = width/224, height/224
-img = cv2.resize(img_, (224, 224))
+x_ratio, y_ratio = width/416, height/416
+img = cv2.resize(img_, (416, 416))
 img = np.expand_dims(img, axis=0)
 
 new_graph = tf.Graph()
 
-
+import pdb; pdb.set_trace()
 with tf.Session(graph=new_graph) as sess:
     tf.global_variables_initializer().run()
-    saver = tf.train.import_meta_graph('weight/model_900.ckpt.meta')
+    saver = tf.train.import_meta_graph('weight/model_100.ckpt.meta')
     checkpoint = tf.train.latest_checkpoint('weight')
     saver.restore(sess, checkpoint)
     print ("model restored")
     image_tensor = tf.get_default_graph().get_tensor_by_name('input_image:0')
+    rpn_cls = tf.get_default_graph().get_tensor_by_name('rpn_cls_reshaped:0')
+    rpn_box = tf.get_default_graph().get_tensor_by_name('rpn_bbox_reshaped:0')
+    rpn = sess.run([rpn_cls, rpn_box], feed_dict={image_tensor:img})
+
+
+
+'''
+
+
     rpn_cls = tf.get_default_graph().get_tensor_by_name('rpn_cls_reshaped:0')
     rpn_box = tf.get_default_graph().get_tensor_by_name('rpn_bbox_reshaped:0')
     rpn = sess.run([rpn_cls, rpn_box], feed_dict={image_tensor:img})
@@ -64,3 +73,4 @@ with tf.Session(graph=new_graph) as sess:
     # boxes = utils.filter(np.abs(boxes[0]), classes[0][:, :1])
     # nms_box = utils.non_max_suppression_fast(boxes, 0.5)
     # utils.bbox_plot(img[0], nms_box)
+'''

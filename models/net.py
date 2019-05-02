@@ -18,8 +18,8 @@ class network():
 		# self.neck = fpn.FPN(name='fpn')
 		self.x = tf.placeholder(dtype=tf.float32, shape=[self._batch_size, 416, 416, 3], name="input_image")
 		# self.im_size = tf.placeholder(dtype=tf.float32, shape=[None, None], name="img_shape")
-		self.bbox = tf.placeholder(dtype=tf.float32, shape=[self._batch_size, 1, 4])
-		self.class_id = tf.placeholder(dtype=tf.float32, shape=[self._batch_size, 1])
+		self.bbox = tf.placeholder(dtype=tf.float32, shape=[self._batch_size, 1, 4], name="input_bbox")
+		self.class_id = tf.placeholder(dtype=tf.float32, shape=[self._batch_size, 1], name="input_class")
 
 
 	def build(self, config):
