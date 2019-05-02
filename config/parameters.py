@@ -64,3 +64,20 @@ class Config:
 
         self.model_path = None
         self.feature_shape = (64, 19)
+
+
+        self.RPN_ANCHOR_HEIGHTS = None
+        self.RPN_ANCHOR_WIDTHS = None
+        self.RPN_ANCHOR_BASE_SIZE = 64
+        self.RPN_ANCHOR_SCALES = [1, 2 ** 1, 2 ** 2]
+        self.RPN_ANCHOR_RATIOS = [0.5, 1, 2]
+        # RPN提议框非极大抑制阈值(训练时可以增加该值来增加提议框)
+        self.RPN_NMS_THRESHOLD_TRAINING = 0.7
+        self.RPN_NMS_THRESHOLD_INFERENCE = 0.7
+
+        self.BACKBONE_STRIDE = 16
+        self.RPN_TRAIN_ANCHORS_PER_IMAGE = 256
+
+        self.RPN_ANCHOR_NUM = len(self.RPN_ANCHOR_HEIGHTS) if self.RPN_ANCHOR_HEIGHTS is not None \
+                                else len(self.RPN_ANCHOR_SCALES) * len(self.RPN_ANCHOR_RATIOS)
+                    

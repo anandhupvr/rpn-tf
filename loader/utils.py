@@ -8,35 +8,8 @@ import numpy as np
 import tensorflow as tf
 
 
-class Bbox:
-    def __init__(self, x, y, w, h, cat):
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
-        self.cat = cat
 
-    def __getitem__(self,key):
-        return getattr(self, key)
 
-def train_test_split(data_path, *args):
-    if len(args) == 0:
-        percentage_test = 10
-    else:
-        percentage_test = args[0]
-
-    img_count = len(os.listdir(data_path))
-    file_train = open('train.txt', 'w+')  
-    file_test = open('test.txt', 'w+')
-    counter = 0
-    index_test = round(img_count * percentage_test / 100)
-    all_items = glob.glob(data_path + "/*.jpg")
-    for i in all_items:
-        if counter < index_test:
-            file_test.write(i + "\n")
-            counter += 1
-        else:
-            file_train.write(i + "\n")
 def box_plot(img, box):
     # a = (box[0][:].split(","))
     # print (a)
@@ -50,16 +23,7 @@ def box_plot(img, box):
         ax.add_patch(s)
     plt.show()
 
-def to_NCHW_format(bottom, num_dim, name):
-    input_shape = tf.shape(bottom)
-    with tf.variable_scope(name) as scope:
-        # change the channel to gpu tensorflow format
-        to_NCHW = tf.transpose(bottom, [0, 3, 1, 2])
 
-        reshaped = tf.reshape(to_NCHW,
-                                    tf.concat(axis=0, values=[[1, num_dim, -1], [input_shape[2]]]))
-        to_tf = tf.transpose(reshaped, [0, 2, 3, 1])
-        return to_tf
 def bbox_transform_inv(boxes, regr):
 
     if boxes.shape[0] == 0:

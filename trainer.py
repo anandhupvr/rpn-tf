@@ -2,43 +2,45 @@ from matplotlib import pyplot as plt
 import numpy as np 
 import tensorflow as tf
 import sys
-from loader.data import load
+from loader.data import Load
 from models.net import network
 import lib.loss as losses
 from config.parameters import Config
-import lib.utils as utils
+# import lib.utils as utils
 
 
 C = Config()
-def get_img_output_length(width, height):
-	return (int(width/16),int(height/16))
 
 
+tf.reset_default_graph()
 
 num_epo = 901
 dataset_path = sys.argv[1]
-load = load(dataset_path)
+load = Load(dataset_path)
 
 
-data = load.get_data()
-num_anchors = 9
-
-
-data_get = load.get_rpn(data, C, get_img_output_length)
+inputs = load.data()
 
 net = network()
 
-rpn_out,x = net.build_network()
-# x, cls_plc, box_plc = net.get_placeholder()
-total_loss, cls_loss, bbox_loss, true_obj_loss, false_obj_loss, g_bbox, true_index, false_index = losses.rpn_loss(rpn_out[0], rpn_out[1])
+# rpn_class_logits, rpn_probs, rpn_deltas = net.build_network()
+x, bbox, cls_id = net.get_placeholder()
+# rpn_class_loss, rpn_bbox_loss = net.rpn_loss(rpn_class_logits, rpn_deltas)
+# total_loss, cls_loss, bbox_loss, true_obj_loss, false_obj_loss, g_bbox, true_index, false_index = losses.rpn_loss(rpn_out[0], rpn_out[1])
 
+cls_loss, regress_loss = net.build(C)
+total_loss = tf.add(cls_loss, regress_loss)
 
-
+tf.summary.scalar("class loss", cls_loss)
+tf.summary.scalar("bbox loss", regress_loss)
 tf.summary.scalar("total loss", total_loss)
-tf.summary.scalar("rpn cls loss", cls_loss)
-tf.summary.scalar("rpn bbox loss", bbox_loss)
-train_step = tf.train.AdamOptimizer(1e-4).minimize(total_loss)
-# train_step = tf.train.GradientDescentOptimizer(1e-4).minimize(total_loss)
+
+
+# tf.summary.scalar("total loss", total_loss)
+# tf.summary.scalar("rpn cls loss", cls_loss)
+# tf.summary.scalar("rpn bbox loss", bbox_loss)
+# train_step = tf.train.AdamOptimizer(1e-4).minimize(total_loss)
+train_step = tf.train.GradientDescentOptimizer(1e-4).minimize(total_loss)
 
 saver = tf.train.Saver()
 
@@ -48,13 +50,15 @@ with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer())
 	for i in range(num_epo):
 		los = 0
+		import pdb; pdb.set_trace()
 		# manualy done as per batch size
-		for _ in range(108):
-			x_img, anchors, true_index_batch, false_index_batch = next(data_get)
-			summary = sess.run([merged, train_step], feed_dict={x:x_img, g_bbox:anchors, true_index:true_index_batch, false_index:false_index_batch})
-			ls_val= sess.run(total_loss, feed_dict={x:x_img, g_bbox:anchors, true_index:true_index_batch, false_index:false_index_batch})
-			loss_ = ls_val + los
-			los = loss_
+		for _ in range(242):
+			# x_img, anchors, true_index_batch, false_index_batch = next(data_get)
+			x_img, box, class_id = next(inputs)
+			loss = sess.run(total_loss, feed_dict={x:x_img, bbox:box, cls_id:class_id})
+			# rpn_cls, rpn_prob, rpn_del = sess.run([rpn_class_logits, rpn_probs, rpn_deltas], feed_dict={x:x_img, bbox:box})
+			print ("kdk")
+			print (loss)
 		train_writer.add_summary(summary[0], i)
 		print ("epoch : %s  ***** avg losss : %s ***** "%(i, loss_/108))
 

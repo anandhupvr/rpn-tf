@@ -1,435 +1,125 @@
-import numpy as np
-import pdb
-import math
-import copy
-from loader.data import load
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-from PIL import Image
-
-data = load('dataset/')
+import tensorflow as tf
 
 
-def calc_iou(R, img_data, C, class_mapping):
-	bboxes = img_data['bboxes']
-	(width, height) = (img_data['width'], img_data['height'])
-	# get image dimensions for resizing
-	(resized_width, resized_height) = data.get_new_img_size(width, height, C.im_size)
 
-	gta = np.zeros((len(bboxes), 4))
+# def bbox_plot(img, box):
 
-	for bbox_num, bbox in enumerate(bboxes):
-		# get the GT box coordinates, and resize to account for image resizing
-		gta[bbox_num, 0] = int(round(bbox['x1'] * (resized_width / float(width))/C.rpn_stride))
-		gta[bbox_num, 1] = int(round(bbox['x2'] * (resized_width / float(width))/C.rpn_stride))
-		gta[bbox_num, 2] = int(round(bbox['y1'] * (resized_height / float(height))/C.rpn_stride))
-		gta[bbox_num, 3] = int(round(bbox['y2'] * (resized_height / float(height))/C.rpn_stride))
+# 	fig, ax = plt.subplots(1)
+# 	# import pdb; pdb.set_trace()
+# 	ax.imshow(img)
+# 	for i in range(len(box)):
+# 		k = 0
+# 		s = patches.Rectangle((box[i][k], box[i][k+1]), box[i][k+2], box[i][k+3], linewidth=1, edgecolor='g', facecolor="none")
+# 		# s = patches.Rectangle((box[i][0], box[i][1]), box[i][2], box[i][3], linewidth=1, edgecolor='g', facecolor="none")
+# 		ax.add_patch(s)
+# 	plt.show()
+# 	plt.savefig("prediction.png")
 
-	x_roi = []
-	y_class_num = []
-	y_class_regr_coords = []
-	y_class_regr_label = []
-	IoUs = [] # for debugging only
+def iou_distance(box_a, box_b):
+    """
+    iou距离
+    :param box_a: [h,w]
+    :param box_b: [h,w]
+    :return:
+    """
+    if len(np.shape(box_a)) == 1:
+        ha, wa = box_a[0], box_a[1]
+        hb, wb = box_b[0], box_b[1]
+        overlap = min(ha, hb) * min(wa, wb)
+        iou = overlap / (ha * wa + hb * wb - overlap)
+    else:
+        ha, wa = box_a[:, 0], box_a[:, 1]
+        hb, wb = box_b[:, 0], box_b[:, 1]
+        overlap = np.minimum(ha, hb) * np.minimum(wa, wb)
+        iou = overlap / (ha * wa + hb * wb - overlap)
+    return 1. - iou
 
-	for ix in range(R.shape[0]):
-		(x1, y1, x2, y2) = R[ix, :]
-		x1 = int(round(x1))
-		y1 = int(round(y1))
-		x2 = int(round(x2))
-		y2 = int(round(y2))
 
-		best_iou = 0.0
-		best_bbox = -1
-		for bbox_num in range(len(bboxes)):
-			curr_iou = data.iou([gta[bbox_num, 0], gta[bbox_num, 2], gta[bbox_num, 1], gta[bbox_num, 3]], [x1, y1, x2, y2])
-			if curr_iou > best_iou:
-				best_iou = curr_iou
-				best_bbox = bbox_num
 
-		if best_iou < C.classifier_min_overlap:
-				continue
-		else:
-			w = x2 - x1
-			h = y2 - y1
-			x_roi.append([x1, y1, w, h])
-			IoUs.append(best_iou)
-			if C.classifier_min_overlap <= best_iou < C.classifier_max_overlap:
-				# hard negative example
-				cls_name = 'bg'
-			elif C.classifier_max_overlap <= best_iou:
 
-				cls_name = bboxes[best_bbox]['class']
-				# cls_name = 'raccoon'
-				cxg = (gta[best_bbox, 0] + gta[best_bbox, 1]) / 2.0
-				cyg = (gta[best_bbox, 2] + gta[best_bbox, 3]) / 2.0
+def compute_iou(ha, wa, hb, wb):
+    """
+    根据长宽计算iou
+    :param ha: [n]
+    :param wa: [n]
+    :param hb: [m]
+    :param wb: [m]
+    :return:
+    """
+    # 扩维
+    ha, wa = ha[:, np.newaxis], wa[:, np.newaxis]
+    hb, wb = hb[np.newaxis, :], wb[np.newaxis, :]
+    overlap = np.minimum(ha, hb) * np.minimum(wa, wb)  # [n,m]
+    iou = overlap / (ha * wa + hb * wb - overlap)
+    return iou
 
-				cx = x1 + w / 2.0
-				cy = y1 + h / 2.0
 
-				tx = (cxg - cx) / float(w)
-				ty = (cyg - cy) / float(h)
-				tw = np.log((gta[best_bbox, 1] - gta[best_bbox, 0]) / float(w))
-				th = np.log((gta[best_bbox, 3] - gta[best_bbox, 2]) / float(h))
-			else:
-				print('roi = {}'.format(best_iou))
-				raise RuntimeError
-		# class_mapping = {v: k for k, v in class_mapping.items()}
-		class_num = class_mapping[cls_name]
-		class_label = len(class_mapping) * [0]
-		class_label[class_num] = 1
-		y_class_num.append(copy.deepcopy(class_label))
-		coords = [0] * 4 * (len(class_mapping) - 1)
-		labels = [0] * 4 * (len(class_mapping) - 1)
-		if cls_name != 'bg':
-			label_pos = 4 * class_num
-			sx, sy, sw, sh = C.classifier_regr_std
-			coords[label_pos:4+label_pos] = [sx*tx, sy*ty, sw*tw, sh*th]
-			labels[label_pos:4+label_pos] = [1, 1, 1, 1]
-			y_class_regr_coords.append(copy.deepcopy(coords))
-			y_class_regr_label.append(copy.deepcopy(labels))
-		else:
-			y_class_regr_coords.append(copy.deepcopy(coords))
-			y_class_regr_label.append(copy.deepcopy(labels))
+def analyze_anchors(gt_boxes, gt_labels, h, w):
+    """
+    分析anchor 长宽效果;
+    :param gt_boxes: [n,(y1,x1,y2,x2)]
+    :param gt_labels: [n]
+    :param h: [m]
+    :param w: [m]
+    :return:
+    """
+    gt_h = gt_boxes[:, 2] - gt_boxes[:, 0]
+    gt_w = gt_boxes[:, 3] - gt_boxes[:, 1]
 
-	if len(x_roi) == 0:
-		return None, None, None, None
-	X = np.array(x_roi)
-	Y1 = np.array(y_class_num)
-	Y2 = np.concatenate([np.array(y_class_regr_label),np.array(y_class_regr_coords)],axis=0)
+    num_classes = np.max(gt_labels) + 1
+    iou_dict = dict()
+    for label in np.arange(1, num_classes):
+        indices = np.where(gt_labels == label)
+        iou = compute_iou(gt_h[indices], gt_w[indices], h, w)  # [boxes_num,anchors_num]
+        iou_dict[label] = np.mean(np.max(iou, axis=1))
 
-	return np.expand_dims(X, axis=0), np.expand_dims(Y1, axis=0), np.expand_dims(Y2, axis=0), IoUs
+    return iou_dict
+
+
+
+
+
+
+
+
+def compute_overlaps(boxes1, boxes2):
+	'''Computes IoU overlaps between two sets of boxes.
+	boxes1, boxes2: [N, (y1, x1, y2, x2)].
+	'''
+	# 1. Tile boxes2 and repeate boxes1. This allows us to compare
+	# every boxes1 against every boxes2 without loops.
+	# TF doesn't have an equivalent to np.repeate() so simulate it
+	# using tf.tile() and tf.reshape.
+	b1 = tf.reshape(tf.tile(tf.expand_dims(boxes1, 1),
+							[1, 1, tf.shape(boxes2)[0]]), [-1, 4])
+	b2 = tf.tile(boxes2, [tf.shape(boxes1)[0], 1])
+	# 2. Compute intersections
+	b1_y1, b1_x1, b1_y2, b1_x2 = tf.split(b1, 4, axis=1)
+	b2_y1, b2_x1, b2_y2, b2_x2 = tf.split(b2, 4, axis=1)
+	y1 = tf.maximum(b1_y1, b2_y1)
+	x1 = tf.maximum(b1_x1, b2_x1)
+	y2 = tf.minimum(b1_y2, b2_y2)
+	x2 = tf.minimum(b1_x2, b2_x2)
+	intersection = tf.maximum(x2 - x1, 0) * tf.maximum(y2 - y1, 0)
+	# 3. Compute unions
+	b1_area = (b1_y2 - b1_y1) * (b1_x2 - b1_x1)
+	b2_area = (b2_y2 - b2_y1) * (b2_x2 - b2_x1)
+	union = b1_area + b2_area - intersection
+	# 4. Compute IoU and reshape to [boxes1, boxes2]
+	iou = intersection / union
+	overlaps = tf.reshape(iou, [tf.shape(boxes1)[0], tf.shape(boxes2)[0]])
+	return overlaps
+
+def trim_zeros(boxes, name=None):
+	'''
+	Often boxes are represented with matrices of shape [N, 4] and
+	are padded with zeros. This removes zero boxes.
 	
-
-def apply_regr(x, y, w, h, tx, ty, tw, th):
-	try:
-		cx = x + w/2.
-		cy = y + h/2.
-		cx1 = tx * w + cx
-		cy1 = ty * h + cy
-		w1 = math.exp(tw) * w
-		h1 = math.exp(th) * h
-		x1 = cx1 - w1/2.
-		y1 = cy1 - h1/2.
-		x1 = int(round(x1))
-		y1 = int(round(y1))
-		w1 = int(round(w1))
-		h1 = int(round(h1))
-
-		return x1, y1, w1, h1
-
-	except ValueError:
-		return x, y, w, h
-	except OverflowError:
-		return x, y, w, h
-	except Exception as e:
-		print(e)
-		return x, y, w, h
-
-def apply_regr_np(X, T):
-	try:
-		x = X[0, :, :]
-		y = X[1, :, :]
-		w = X[2, :, :]
-		h = X[3, :, :]
-
-		tx = T[0, :, :]
-		ty = T[1, :, :]
-		tw = T[2, :, :]
-		th = T[3, :, :]
-
-		cx = x + w/2.
-		cy = y + h/2.
-		cx1 = tx * w + cx
-		cy1 = ty * h + cy
-
-		w1 = np.exp(tw.astype(np.float64)) * w
-		h1 = np.exp(th.astype(np.float64)) * h
-		x1 = cx1 - w1/2.
-		y1 = cy1 - h1/2.
-
-		x1 = np.round(x1)
-		y1 = np.round(y1)
-		w1 = np.round(w1)
-		h1 = np.round(h1)
-		return np.stack([x1, y1, w1, h1])
-	except Exception as e:
-		print(e)
-		return X
-
-# def non_max_suppression_fast(boxes, probs, overlap_thresh=0.9, max_boxes=300):
-# 	try:
-
-# 		# code used from here: http://www.pyimagesearch.com/2015/02/16/faster-non-maximum-suppression-python/
-# 		# if there are no boxes, return an empty list
-# 		if len(boxes) == 0:
-# 			return []
-# 		# grab the coordinates of the bounding boxes
-# 		x1 = boxes[:, 0]
-# 		y1 = boxes[:, 1]
-# 		x2 = boxes[:, 2]
-# 		y2 = boxes[:, 3]
-
-# 		np.testing.assert_array_less(x1, x2)
-# 		np.testing.assert_array_less(y1, y2)
-
-# 		# if the bounding boxes integers, convert them to floats --
-# 		# this is important since we'll be doing a bunch of divisions
-# 		if boxes.dtype.kind == "i":
-# 			boxes = boxes.astype("float")
-
-# 		# initialize the list of picked indexes	
-# 		pick = []
-
-# 		# calculate the areas
-# 		area = (x2 - x1) * (y2 - y1)
-
-# 		# sort the bounding boxes 
-# 		idxs = np.argsort(probs)
-
-# 		# keep looping while some indexes still remain in the indexes
-# 		# list
-# 		while len(idxs) > 0:
-# 			# grab the last index in the indexes list and add the
-# 			# index value to the list of picked indexes
-# 			last = len(idxs) - 1
-# 			i = idxs[last]
-# 			pick.append(i)
-
-# 			# find the intersection
-
-# 			xx1_int = np.maximum(x1[i], x1[idxs[:last]])
-# 			yy1_int = np.maximum(y1[i], y1[idxs[:last]])
-# 			xx2_int = np.minimum(x2[i], x2[idxs[:last]])
-# 			yy2_int = np.minimum(y2[i], y2[idxs[:last]])
-
-# 			ww_int = np.maximum(0, xx2_int - xx1_int)
-# 			hh_int = np.maximum(0, yy2_int - yy1_int)
-
-# 			area_int = ww_int * hh_int
-
-# 			# find the union
-# 			area_union = area[i] + area[idxs[:last]] - area_int
-
-# 			# compute the ratio of overlap
-# 			overlap = area_int/(area_union + 1e-6)
-
-# 			# delete all indexes from the index list that have
-# 			idxs = np.delete(idxs, np.concatenate(([last],
-# 				np.where(overlap > overlap_thresh)[0])))
-
-# 			if len(pick) >= max_boxes:
-# 				break
-
-# 		# return only the bounding boxes that were picked using the integer data type
-# 		boxes = boxes[pick].astype("int")
-# 		probs = probs[pick]
-# 		return boxes, probs
-
-# 	except:
-# 		pass
-
-
-import time
-def rpn_to_roi(rpn_layer, regr_layer, C, dim_ordering, use_regr=True, max_boxes=300,overlap_thresh=0.9):
-	regr_layer = regr_layer / C.std_scaling
-
-	anchor_sizes = C.anchor_box_scales
-	anchor_ratios = C.anchor_box_ratios
-
-	assert rpn_layer.shape[0] == 1
-
-	if dim_ordering == 'th':
-		(rows,cols) = rpn_layer.shape[2:]
-
-	elif dim_ordering == 'tf':
-		(rows, cols) = rpn_layer.shape[1:3]
-
-	curr_layer = 0
-	if dim_ordering == 'tf':
-		A = np.zeros((4, rpn_layer.shape[1], rpn_layer.shape[2], rpn_layer.shape[3]))
-	elif dim_ordering == 'th':
-		A = np.zeros((4, rpn_layer.shape[2], rpn_layer.shape[3], rpn_layer.shape[1]))
-
-	for anchor_size in anchor_sizes:
-		for anchor_ratio in anchor_ratios:
-
-			anchor_x = (anchor_size * anchor_ratio[0])/C.rpn_stride
-			anchor_y = (anchor_size * anchor_ratio[1])/C.rpn_stride
-			if dim_ordering == 'th':
-				regr = regr_layer[0, 4 * curr_layer:4 * curr_layer + 4, :, :]
-			else:
-				regr = regr_layer[0, :, :, 4 * curr_layer:4 * curr_layer + 4]
-				regr = np.transpose(regr, (2, 0, 1))
-
-			X, Y = np.meshgrid(np.arange(cols),np. arange(rows))
-
-			A[0, :, :, curr_layer] = X - anchor_x/2
-			A[1, :, :, curr_layer] = Y - anchor_y/2
-			A[2, :, :, curr_layer] = anchor_x
-			A[3, :, :, curr_layer] = anchor_y
-
-			if use_regr:
-				A[:, :, :, curr_layer] = apply_regr_np(A[:, :, :, curr_layer], regr)
-
-			A[2, :, :, curr_layer] = np.maximum(1, A[2, :, :, curr_layer])
-			A[3, :, :, curr_layer] = np.maximum(1, A[3, :, :, curr_layer])
-			A[2, :, :, curr_layer] += A[0, :, :, curr_layer]
-			A[3, :, :, curr_layer] += A[1, :, :, curr_layer]
-
-			A[0, :, :, curr_layer] = np.maximum(0, A[0, :, :, curr_layer])
-			A[1, :, :, curr_layer] = np.maximum(0, A[1, :, :, curr_layer])
-			A[2, :, :, curr_layer] = np.minimum(cols-1, A[2, :, :, curr_layer])
-			A[3, :, :, curr_layer] = np.minimum(rows-1, A[3, :, :, curr_layer])
-
-			curr_layer += 1
-
-	all_boxes = np.reshape(A.transpose((0, 3, 1,2)), (4, -1)).transpose((1, 0))
-	all_probs = rpn_layer.transpose((0, 3, 1, 2)).reshape((-1))
-
-	x1 = all_boxes[:, 0]
-	y1 = all_boxes[:, 1]
-	x2 = all_boxes[:, 2]
-	y2 = all_boxes[:, 3]
-
-	idxs = np.where((x1 - x2 >= 0) | (y1 - y2 >= 0))
-
-	all_boxes = np.delete(all_boxes, idxs, 0)
-	all_probs = np.delete(all_probs, idxs, 0)
-
-	result = non_max_suppression_fast(all_boxes, all_probs, overlap_thresh=overlap_thresh, max_boxes=max_boxes)[0]
-
-	return result
-
-
-
-def bbox_plot(img, box):
-
-	fig, ax = plt.subplots(1)
-	# import pdb; pdb.set_trace()
-	ax.imshow(img)
-	for i in range(len(box)):
-		k = 0
-		s = patches.Rectangle((box[i][k], box[i][k+1]), box[i][k+2], box[i][k+3], linewidth=1, edgecolor='g', facecolor="none")
-		# s = patches.Rectangle((box[i][0], box[i][1]), box[i][2], box[i][3], linewidth=1, edgecolor='g', facecolor="none")
-		ax.add_patch(s)
-	plt.show()
-	plt.savefig("prediction.png")
-
-# Malisiewicz et al.
-def non_max_suppression_fast(boxes, overlapThresh):
-    # if there are no boxes, return an empty list
-    if len(boxes) == 0:
-        return []
- 
-    # if the bounding boxes integers, convert them to floats --
-    # this is important since we'll be doing a bunch of divisions
-    if boxes.dtype.kind == "i":
-        boxes = boxes.astype("float")
- 
-    # initialize the list of picked indexes 
-    pick = []
- 
-    # grab the coordinates of the bounding boxes
-    x1 = boxes[:,0]
-    y1 = boxes[:,1]
-    x2 = boxes[:,2]
-    y2 = boxes[:,3]
- 
-    # compute the area of the bounding boxes and sort the bounding
-    # boxes by the bottom-right y-coordinate of the bounding box
-    area = (x2 - x1 + 1) * (y2 - y1 + 1)
-    idxs = np.argsort(y2)
- 
-    # keep looping while some indexes still remain in the indexes
-    # list
-    while len(idxs) > 0:
-        # grab the last index in the indexes list and add the
-        # index value to the list of picked indexes
-        last = len(idxs) - 1
-        i = idxs[last]
-        pick.append(i)
- 
-        # find the largest (x, y) coordinates for the start of
-        # the bounding box and the smallest (x, y) coordinates
-        # for the end of the bounding box
-        xx1 = np.maximum(x1[i], x1[idxs[:last]])
-        yy1 = np.maximum(y1[i], y1[idxs[:last]])
-        xx2 = np.minimum(x2[i], x2[idxs[:last]])
-        yy2 = np.minimum(y2[i], y2[idxs[:last]])
- 
-        # compute the width and height of the bounding box
-        w = np.maximum(0, xx2 - xx1 + 1)
-        h = np.maximum(0, yy2 - yy1 + 1)
- 
-        # compute the ratio of overlap
-        overlap = (w * h) / area[idxs[:last]]
- 
-        # delete all indexes from the index list that have
-        idxs = np.delete(idxs, np.concatenate(([last],
-            np.where(overlap > overlapThresh)[0])))
- 
-    # return only the bounding boxes that were picked using the
-    # integer data type
-    return boxes[pick].astype("int")
-
-def filter(boxes, classes):
-    # """Remove all boxes with any side smaller than min_size."""
-    # ws = boxes[:, 2] - boxes[:, 0] + 1
-    # hs = boxes[:, 3] - boxes[:, 1] + 1
-    # keep = np.where((ws >= min_size) & (hs >= min_size))[0]
-    # return keep
-    ind = [i for i in range(len(classes)) if classes[i]>0.6]
-    boxes = [boxes[i] for i in range(len(boxes)) if i in ind]
-    return boxes
-
-def bbox_transform_inv(boxes, deltas):
-    '''
-    Applies deltas to box coordinates to obtain new boxes, as described by 
-    deltas
-    '''   
-    if boxes.shape[0] == 0:
-        return np.zeros((0, deltas.shape[1]), dtype=deltas.dtype)
-
-    boxes = boxes.astype(deltas.dtype, copy=False)
-
-    widths = boxes[:, 2] - boxes[:, 0] + 1.0
-    heights = boxes[:, 3] - boxes[:, 1] + 1.0
-    ctr_x = boxes[:, 0] + 0.5 * widths
-    ctr_y = boxes[:, 1] + 0.5 * heights
-
-    dx = deltas[:, 0::4]
-    dy = deltas[:, 1::4]
-    dw = deltas[:, 2::4]
-    dh = deltas[:, 3::4]
-
-    pred_ctr_x = dx * widths[:, np.newaxis] + ctr_x[:, np.newaxis]
-    pred_ctr_y = dy * heights[:, np.newaxis] + ctr_y[:, np.newaxis]
-    pred_w = np.exp(dw) * widths[:, np.newaxis]
-    pred_h = np.exp(dh) * heights[:, np.newaxis]
-
-    pred_boxes = np.zeros(deltas.shape, dtype=deltas.dtype)
-    # x1
-    pred_boxes[:, 0::4] = pred_ctr_x - 0.5 * pred_w
-    # y1
-    pred_boxes[:, 1::4] = pred_ctr_y - 0.5 * pred_h
-    # x2
-    pred_boxes[:, 2::4] = pred_ctr_x + 0.5 * pred_w
-    # y2
-    pred_boxes[:, 3::4] = pred_ctr_y + 0.5 * pred_h
-
-    return pred_boxes
-
-def clip_boxes(boxes, im_shape):
-    """
-    Clip boxes to image boundaries.
-    """
-
-    # x1 >= 0
-    boxes[:, 0::4] = np.maximum(np.minimum(boxes[:, 0::4], im_shape[1] - 1), 0)
-    # y1 >= 0
-    boxes[:, 1::4] = np.maximum(np.minimum(boxes[:, 1::4], im_shape[0] - 1), 0)
-    # x2 < im_shape[1]
-    boxes[:, 2::4] = np.maximum(np.minimum(boxes[:, 2::4], im_shape[1] - 1), 0)
-    # y2 < im_shape[0]
-    boxes[:, 3::4] = np.maximum(np.minimum(boxes[:, 3::4], im_shape[0] - 1), 0)
-    return boxes
+	Args
+	---
+		boxes: [N, 4] matrix of boxes.
+		non_zeros: [N] a 1D boolean mask identifying the rows to keep
+	'''
+	non_zeros = tf.cast(tf.reduce_sum(tf.abs(boxes), axis=1), tf.bool)
+	boxes = tf.boolean_mask(boxes, non_zeros, name=name)
+	return boxes, non_zeros
