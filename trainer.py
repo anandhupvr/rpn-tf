@@ -50,17 +50,14 @@ with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer())
 	for i in range(num_epo):
 		los = 0
-		import pdb; pdb.set_trace()
 		# manualy done as per batch size
 		for _ in range(242):
 			# x_img, anchors, true_index_batch, false_index_batch = next(data_get)
 			x_img, box, class_id = next(inputs)
 			loss = sess.run(total_loss, feed_dict={x:x_img, bbox:box, cls_id:class_id})
 			# rpn_cls, rpn_prob, rpn_del = sess.run([rpn_class_logits, rpn_probs, rpn_deltas], feed_dict={x:x_img, bbox:box})
-			print ("kdk")
-			print (loss)
 		train_writer.add_summary(summary[0], i)
-		print ("epoch : %s  ***** avg losss : %s ***** "%(i, loss_/108))
+		print ("epoch : %s  ***** avg losss : %s ***** "%(i, loss_/242))
 
 		if i%100 == 0:
 			save_path = saver.save(sess, 'weight/'+"model_{}.ckpt".format(i))
