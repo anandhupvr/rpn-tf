@@ -48,7 +48,7 @@ class RPN:
 			name='rpn_bbox_pred',
 			reuse=tf.AUTO_REUSE)
 
-		rpn_deltas = tf.reshape(x, [tf.shape(x)[0], -1, 4], name='rpn_bbox_pred')
+		rpn_deltas = tf.reshape(x, [tf.shape(x)[0], -1, 4], name='rpn_bbox_reshaped')
 		# layers_outputs.append([rpn_class_logits, rpn_probs, rpn_deltas])
 		print(rpn_class_logits.shape, rpn_probs.shape, rpn_deltas.shape)
 			
