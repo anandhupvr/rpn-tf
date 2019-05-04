@@ -157,6 +157,32 @@ def scalar_to_1d_tensor(scalar, dtpye=tf.float32):
     """
     return tf.expand_dims(tf.cast(scalar, dtype=dtpye), axis=0)
 
+def inv_regress(anchors, anchors_tag, regr):
+    valid_anchor_indices = tf.where(anchors_tag)[:, 0]
+    anchors = tf.gather(anchors, valid_anchor_indices)
+    height = anchors[:, 2] - anchors[:, 0] + 1.0
+    width = anchors[:, 3] - anchors[:, 1] + 1.0
+    ctr_x = anchors[:, 1] * 0.5 * width
+    ctr_y = anchors[:, 0] * 0.5 * height
+
+    dy = regr[:, 0::4]
+    dx = regr[:, 1::4]
+    dh = regr[:, 2::4]
+    dw = regr[:, 3::4]
+
+    pred_ctr_x = dx * width[:, tf.newaxis] + ctr_x[:, tf.newaxis]
+    pred_ctr_y = dy * height[:, tf.newaxis] + ctr_y[:, tf.newaxis]
+    pred_w = tf.exp(dw) * width[:, tf.newaxis]
+    pred_h = tf.exp(dh) * height[:, tf.newaxis]
+
+    pred_boxes = tf.zeros(regr.shape, dtype=regr.dtype)
+
+    pred_boxes[:, 0::4] = pred_ctr_x - 0.5 * pred_w
+    pred_boxes[:, 1::4] = pred_ctr_y - 0.5 * pred_h
+    pred_boxes[:, 2::4] = pred_ctr_x + 0.5 * pred_w
+    pred_boxes[:, 3::4] = pred_ctr_y + 0.5 * pred_h
+
+    return pred_boxes
 
 def main():
     sess = tf.Session()

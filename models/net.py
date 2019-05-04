@@ -26,7 +26,9 @@ class network():
 		vgg_16 = vgg.ConvNetVgg16('vgg16.npy')
 		cnn = vgg_16.inference(self.x)
 		features = vgg_16.get_features()
+		print (features.shape)
 		rpn_class_logits, rpn_probs, rpn_deltas = self.net.rpn(features)
+
 		
 		anchors, anchors_tag = Anchor(config.RPN_ANCHOR_HEIGHTS,
 										config.RPN_ANCHOR_WIDTHS,

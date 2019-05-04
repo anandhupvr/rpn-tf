@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 from config.parameters import Config
 import os
-# from lib.extract_rpn import extractor 
+from lib.extract_rpn import inverse 
 
 tf.reset_default_graph()
 
@@ -16,28 +16,32 @@ tf.reset_default_graph()
 C = Config()
 bbox_threshold = 0.2
 img = []
+images = os.listdir(sys.argv[1])
+for im in images:
+    img_ = cv2.imread(os.path.join(sys.argv[1], im))
+    img_ = cv2.resize(img_, (416, 416))
+    img.append(img_)
+# width, height = img_.shape[1:3]
+# x_ratio, y_ratio = width/416, height/416
 
-img_ = cv2.imread(sys.argv[1])
-width, height = img_.shape[1:3]
-x_ratio, y_ratio = width/416, height/416
-img = cv2.resize(img_, (416, 416))
-img = np.expand_dims(img, axis=0)
-
+# img = np.expand_dims(img, axis=0)
+img = np.array(img)
 new_graph = tf.Graph()
+image = tf.Variable(np.random.rand(1, 26, 26, 512), dtype=tf.float32)
 
-import pdb; pdb.set_trace()
 with tf.Session(graph=new_graph) as sess:
     tf.global_variables_initializer().run()
-    saver = tf.train.import_meta_graph('weight/model_400.ckpt.meta')
+    saver = tf.train.import_meta_graph('weight/model_100.ckpt.meta')
     checkpoint = tf.train.latest_checkpoint('weight')
     saver.restore(sess, checkpoint)
     print ("model restored")
     image_tensor = tf.get_default_graph().get_tensor_by_name('input_image:0')
     rpn_cls = tf.get_default_graph().get_tensor_by_name('rpn_cls_pred:0')
     rpn_box = tf.get_default_graph().get_tensor_by_name('rpn_bbox_reshaped:0')
+    import pdb; pdb.set_trace()
     rpn = sess.run([rpn_cls, rpn_box], feed_dict={image_tensor:img})
-
-
+    boxes = inverse(rpn[1][0], C, image)
+    print ("kdkd")
 
 '''
 

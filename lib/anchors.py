@@ -97,7 +97,6 @@ class Anchor(keras.layers.Layer):
         features = inputs
         features_shape = tf.shape(features)
         print("feature_shape:{}".format(features_shape))
-
         base_anchors = generate_anchors(self.heights, self.widths, self.base_size, self.ratios, self.scales)
         anchors, anchors_tag = shift(features_shape[1:3], self.strides, base_anchors)
         # 扩展第一维，batch_size;每个样本都有相同的anchors

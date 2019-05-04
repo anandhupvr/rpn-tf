@@ -6,3 +6,4 @@ __pycache__
 train.txt
 test.txt
 weight/*
+test/*

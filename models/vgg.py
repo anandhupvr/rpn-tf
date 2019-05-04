@@ -61,6 +61,7 @@ class ConvNetVgg16(object):
         #self.pool5       = self.max_pool(self.conv5_3, "pool5"  )
         #self.output      = self.pool5       
         self.output      = self.conv5_3
+        self.output = tf.reshape(self.output, [-1, 26, 26, 512], name="conv5_3_vgg")
         return self.output
 
     def get_features(self):

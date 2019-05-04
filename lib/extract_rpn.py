@@ -1,6 +1,6 @@
 import numpy as np
-from lib.generate_anchors import generate_anchors
-from lib.utils import bbox_transform_inv, clip_boxes, non_max_suppression_fast
+# from lib.generate_anchors import generate_anchors
+# from lib.utils import bbox_transform_inv, clip_boxes, non_max_suppression_fast
 
 
 
@@ -38,8 +38,46 @@ def extractor(rpn_bbox, rpn_cls, im_dims=(224, 224), scales=np.array([8, 16, 32]
 
 
 def _filter_boxes(boxes, min_size):
-    """Remove all boxes with any side smaller than min_size."""
-    ws = boxes[:, 2] - boxes[:, 0] + 1
-    hs = boxes[:, 3] - boxes[:, 1] + 1
-    keep = np.where((ws >= min_size) & (hs >= min_size))[0]
-    return keep
+	"""Remove all boxes with any side smaller than min_size."""
+	ws = boxes[:, 2] - boxes[:, 0] + 1
+	hs = boxes[:, 3] - boxes[:, 1] + 1
+	keep = np.where((ws >= min_size) & (hs >= min_size))[0]
+	return keep
+
+from lib.anchors import Anchor
+
+
+def inverse(regr, config, features):
+	anchors, anchors_tag = Anchor(config.RPN_ANCHOR_HEIGHTS,
+								config.RPN_ANCHOR_WIDTHS,
+								config.RPN_ANCHOR_BASE_SIZE,
+								config.RPN_ANCHOR_RATIOS,
+								config.RPN_ANCHOR_SCALES,
+								config.BACKBONE_STRIDE, name='gen_anchors')(features)
+
+
+	valid_anchor_indices = tf.where(anchors_tag)[:, 0]
+	anchors = tf.gather(anchors, valid_anchor_indices)
+	height = anchors[:, 2] - anchors[:, 0] + 1.0
+	width = anchors[:, 3] - anchors[:, 1] + 1.0
+	ctr_x = anchors[:, 1] * 0.5 * width
+	ctr_y = anchors[:, 0] * 0.5 * height
+
+	dy = regr[:, 0::4]
+	dx = regr[:, 1::4]
+	dh = regr[:, 2::4]
+	dw = regr[:, 3::4]
+
+	pred_ctr_x = dx * width[:, tf.newaxis] + ctr_x[:, tf.newaxis]
+	pred_ctr_y = dy * height[:, tf.newaxis] + ctr_y[:, tf.newaxis]
+	pred_w = tf.exp(dw) * width[:, tf.newaxis]
+	pred_h = tf.exp(dh) * height[:, tf.newaxis]
+
+	pred_boxes = tf.zeros(regr.shape, dtype=regr.dtype)
+
+	pred_boxes[:, 0::4] = pred_ctr_x - 0.5 * pred_w
+	pred_boxes[:, 1::4] = pred_ctr_y - 0.5 * pred_h
+	pred_boxes[:, 2::4] = pred_ctr_x + 0.5 * pred_w
+	pred_boxes[:, 3::4] = pred_ctr_y + 0.5 * pred_h
+
+	return pred_boxes
