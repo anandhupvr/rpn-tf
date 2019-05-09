@@ -35,10 +35,16 @@ def bbox_transform_inv(boxes, regr):
     ctr_x = boxes[:, 0] + 0.5 * width
     ctr_y = boxes[:, 1] + 0.5 * height
 
-    dx = regr[:, 0::4]
-    dy = regr[:, 1::4]
-    dw = regr[:, 2::4]
-    dh = regr[:, 3::4]
+    # dx = regr[:, 0::4]
+    # dy = regr[:, 1::4]
+    # dw = regr[:, 2::4]
+    # dh = regr[:, 3::4]
+
+    dy = regr[:, 0::4]
+    dx = regr[:, 1::4]
+    dh = regr[:, 2::4]
+    dw = regr[:, 3::4]
+
 
     pred_ctr_x = dx * width[:, np.newaxis] + ctr_x[:, np.newaxis]
     pred_ctr_y = dy * height[:, np.newaxis] + ctr_y[:, np.newaxis]

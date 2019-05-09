@@ -2,12 +2,12 @@ import tensorflow as tf
 import cv2
 import sys
 # from loader.DataLoader import load
-# import lib.utils as utils
+import lib.utils as utils
 import cv2
 import numpy as np
 from config.parameters import Config
 import os
-from lib.extract_rpn import inverse 
+from lib.extract_rpn import inverse, extractor
 
 tf.reset_default_graph()
 
@@ -27,7 +27,6 @@ for im in images:
 # img = np.expand_dims(img, axis=0)
 img = np.array(img)
 new_graph = tf.Graph()
-image = tf.Variable(np.random.rand(1, 26, 26, 512), dtype=tf.float32)
 
 with tf.Session(graph=new_graph) as sess:
     tf.global_variables_initializer().run()
@@ -36,12 +35,15 @@ with tf.Session(graph=new_graph) as sess:
     saver.restore(sess, checkpoint)
     print ("model restored")
     image_tensor = tf.get_default_graph().get_tensor_by_name('input_image:0')
-    rpn_cls = tf.get_default_graph().get_tensor_by_name('rpn_cls_pred:0')
+    rpn_cls = tf.get_default_graph().get_tensor_by_name('rpn_cls_softmax:0')
     rpn_box = tf.get_default_graph().get_tensor_by_name('rpn_bbox_reshaped:0')
+    # feature = tf.get_default_graph().get_tensor_by_name('conv5_3_vgg:0')
     import pdb; pdb.set_trace()
     rpn = sess.run([rpn_cls, rpn_box], feed_dict={image_tensor:img})
-    boxes = inverse(rpn[1][0], C, image)
+    # boxes = extractor(rpn[1][0], rpn[0][0])
     print ("kdkd")
+    utils.bbox_plot(img[0], boxes)
+
 
 '''
 

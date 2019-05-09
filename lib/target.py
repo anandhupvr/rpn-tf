@@ -162,6 +162,7 @@ def rpn_targets_graph(gt_boxes, gt_cls, anchors, anchors_tag, rpn_train_anchors=
     # 将负样本tag标志改为-1;方便后续处理;
     indices = tf_utils.pad_to_fixed_size_with_negative(tf.expand_dims(indices, 1), rpn_train_anchors,
                                                        negative_num=negative_num, data_type=tf.int64)
+    deltas = deltas / 416
     # 其它统计指标
     gt_num = tf.shape(gt_cls)[0]  # GT数
     miss_match_gt_num = gt_num - tf.shape(tf.unique(positive_gt_indices)[0])[0]  # 未分配anchor的GT
