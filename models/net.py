@@ -39,6 +39,7 @@ class network():
 		rpn_targets = RpnTarget(self._batch_size, config.RPN_TRAIN_ANCHORS_PER_IMAGE, name='rpn_target')(
 								[self.bbox, self.class_id, anchors, anchors_tag])								
 		deltas, cls_ids, anchor_indices = rpn_targets[:3]
+		deltas = deltas / 16
 
 
 
